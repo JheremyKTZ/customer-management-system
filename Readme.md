@@ -5,18 +5,18 @@
 - Accept orders from customer online or through our call center
 
 ## Implementation details
-Stages
+**Stages**
 - Identifying classes
 - Separating responsabilities
 - Establishing relationships
 - Leveraging reuse
 
-Relationships
-Customer Repository uses a Customer (Collaboration)
-Order has a Customer/Order Item/Address (Composition)
-- Aggregation: Order => Customer
-- Composition: Order => Order Item
-Customer is a Business/Residential/Educator (Inheritance)
+**Relationships**
+1. Customer Repository uses a Customer (Collaboration)
+2. Order has a Customer/Order Item/Address (Composition)
+    - Aggregation: Order => Customer
+    - Composition: Order => Order Item
+3. Customer is a Business/Residential/Educator (Inheritance)
 
 ## Object-Oriented Programming Fundamentals in C#
 More information in this Pluralsight course
