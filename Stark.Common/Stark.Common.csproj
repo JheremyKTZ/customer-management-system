@@ -43,6 +43,13 @@
   <ItemGroup>
     <Compile Include="ILoggable.cs" />
     <Compile Include="LoggingService.cs" />
+    <Compile Include="Models\Address.cs" />
+    <Compile Include="Models\Customer.cs" />
+    <Compile Include="Models\EntityBase.cs" />
+    <Compile Include="Models\EntityStateOption.cs" />
+    <Compile Include="Models\Order.cs" />
+    <Compile Include="Models\OrderItem.cs" />
+    <Compile Include="Models\Product.cs" />
     <Compile Include="StringHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

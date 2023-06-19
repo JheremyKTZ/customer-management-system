@@ -1,8 +1,8 @@
-﻿using Stark.BL.Models;
+﻿using Stark.Common.Models;
 using System;
 using System.Collections.Generic;
 
-namespace Stark.BL.Repository
+namespace Stark.BL.Repositories
 {
     public class ProductRepository
     {

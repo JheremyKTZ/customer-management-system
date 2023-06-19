@@ -1,7 +1,7 @@
-﻿using Stark.BL.Models;
+﻿using Stark.Common.Models;
 using System.Linq;
 
-namespace Stark.BL.Repository
+namespace Stark.BL.Repositories
 {
     public class CustomerRepository
     {

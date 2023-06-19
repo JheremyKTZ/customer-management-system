@@ -1,8 +1,7 @@
-﻿using Stark.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace Stark.BL.Models
+namespace Stark.Common.Models
 {
     public class Order : EntityBase, ILoggable
     {

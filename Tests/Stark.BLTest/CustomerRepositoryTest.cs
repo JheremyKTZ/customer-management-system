@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stark.BL.Models;
-using Stark.BL.Repository;
+using Stark.BL.Repositories;
+using Stark.Common.Models;
 
 namespace Stark.BLTest
 {

@@ -1,6 +1,6 @@
-﻿using Stark.BL.Models;
+﻿using Stark.Common.Models;
 
-namespace Stark.BL.Repository
+namespace Stark.BL.Repositories
 {
     public class OrderItemRepository
     {

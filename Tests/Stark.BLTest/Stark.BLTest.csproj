@@ -63,6 +63,10 @@
       <Project>{27df3ca7-a5dc-49df-b71f-1d2aa3aa7ca4}</Project>
       <Name>Stark.BL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Stark.Common\Stark.Common.csproj">
+      <Project>{52B2F5AD-C664-4FBF-905F-C5AE1176716D}</Project>
+      <Name>Stark.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
