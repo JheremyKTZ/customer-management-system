@@ -1,6 +1,6 @@
 ﻿namespace Stark.Common.Models
 {
-    public class OrderItem
+    public record OrderItem
     {
         public OrderItem()
         {

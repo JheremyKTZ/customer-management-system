@@ -1,9 +1,10 @@
 ﻿using Stark.Common.Models;
+using System;
 using System.Linq;
 
 namespace Stark.BL.Repositories
 {
-    public class CustomerRepository
+    public class CustomerRepository : IEquatable<CustomerRepository>
     {
         public CustomerRepository()
         {
@@ -11,6 +12,8 @@ namespace Stark.BL.Repositories
         }
 
         private AddressRepository addressRepository { get; set; }
+
+        public bool Equals(CustomerRepository other) => throw new NotImplementedException();
 
         public Customer Retrieve(int customerId)
         {

@@ -18,7 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stark.CommonTest", "Tests\Stark.CommonTest\Stark.CommonTest.csproj", "{B1674B67-E7C2-4258-9DF3-5CA0EB440B73}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stark.Generators", "Stark.InMemoryDatabase\Stark.Generators.csproj", "{21455BF0-4ECB-4A75-9A7D-9F085A5C79FE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stark.Generators", "Stark.Generators\Stark.Generators.csproj", "{21455BF0-4ECB-4A75-9A7D-9F085A5C79FE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

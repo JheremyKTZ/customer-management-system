@@ -1,6 +1,4 @@
-﻿using Stark.Common;
-
-namespace Stark.Common.Models
+﻿namespace Stark.Common.Models
 {
     public class Product : EntityBase, ILoggable
     {
