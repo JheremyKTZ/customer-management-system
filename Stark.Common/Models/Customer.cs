@@ -1,7 +1,6 @@
-﻿using Stark.Common;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace Stark.BL.Models
+namespace Stark.Common.Models
 {
     public class Customer : EntityBase, ILoggable
     {
@@ -12,21 +11,13 @@ namespace Stark.BL.Models
         public Customer(int customerId)
         {
             CustomerId = customerId;
-            AddressList = new List<Address>();
         }
 
         public int CustomerId { get; private set; }
         public int CustomerType { get; set; }
         public string FirstName { get; set; }
-        public List<Address> AddressList { get; set; }
-
-        // full decleration of Lastname field
-        private string _lastName;
-        public string LastName
-        {
-            get { return _lastName; }
-            set { _lastName = value; }
-        }
+        public List<Address> AddressList { get; set; } = new List<Address>();
+        public string LastName { get; set; }
 
         public string FullName
         {
@@ -35,7 +26,7 @@ namespace Stark.BL.Models
                 string fullName = LastName;
                 if (!string.IsNullOrWhiteSpace(FirstName))
                 {
-                    if (!string.IsNullOrWhiteSpace(_lastName))
+                    if (!string.IsNullOrWhiteSpace(FullName))
                     {
                         fullName += ", ";
                     }

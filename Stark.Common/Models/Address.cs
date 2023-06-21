@@ -1,4 +1,4 @@
-﻿namespace Stark.BL.Models
+﻿namespace Stark.Common.Models
 {
     public class Address
     {

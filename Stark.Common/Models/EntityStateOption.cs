@@ -1,4 +1,4 @@
-﻿namespace Stark.BL
+﻿namespace Stark.Common
 {
     public enum EntityStateOption
     {

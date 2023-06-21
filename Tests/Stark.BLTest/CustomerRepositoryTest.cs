@@ -1,6 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stark.BL.Models;
-using Stark.BL.Repository;
+﻿using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Stark.BL.Repositories;
 
 namespace Stark.BLTest
 {
@@ -8,27 +8,17 @@ namespace Stark.BLTest
     public class CustomerRepositoryTest
     {
         [TestMethod]
-        public void RetrieveValid()
+        public void RetrieveAll()
         {
             // Arrange
-            CustomerRepository customerRepository = new CustomerRepository();
-            Customer expected = new Customer(1)
-            {
-                Email = "pepperpotts@stark.com",
-                FirstName = "Pepper",
-                LastName = "Potts"
-            };
+            var expectedCustomers = 2;
+            CustomerRepository customerRepository = new CustomerRepository(expectedCustomers, 2);
 
             // Act
-            Customer actual = customerRepository.Retrieve(1);
+            var customers = customerRepository.RetrieveAll();
 
             // Assert
-            Assert.AreEqual(expected.CustomerId, actual.CustomerId);
-            Assert.AreEqual(expected.FirstName, actual.FirstName);
-            Assert.AreEqual(expected.LastName, actual.LastName);
-            Assert.AreEqual(expected.Email, actual.Email);
-
+            customers.Count.Should().Be(expectedCustomers);
         }
-
     }
 }

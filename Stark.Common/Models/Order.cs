@@ -1,8 +1,7 @@
-﻿using Stark.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace Stark.BL.Models
+namespace Stark.Common.Models
 {
     public class Order : EntityBase, ILoggable
     {
@@ -19,7 +18,7 @@ namespace Stark.BL.Models
         public int CustomerId { get; set; }
         public int OrderId { get; private set; }
         public DateTimeOffset? OrderDate { get; set; }
-        public List<OrderItem> OrderItems { get; set; }
+        public List<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
         public int ShippingAddressId { get; set; }
 
         public string Log() => $"{OrderId}: Date: {OrderDate.Value.Date} Status: {EntityState}";
