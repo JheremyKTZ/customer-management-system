@@ -43,11 +43,12 @@
   <ItemGroup>
     <Compile Include="Repositories\AddressRepository.cs" />
     <Compile Include="Repositories\CustomerRepository.cs" />
+    <Compile Include="Repositories\IRepository.cs" />
     <Compile Include="Repositories\OrderItemRepository.cs" />
     <Compile Include="Repositories\OrderRepository.cs" />
     <Compile Include="Repositories\ProductRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repositories\StubRecords.cs" />
+    <Compile Include="StubSeed.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Stark.Common\Stark.Common.csproj">

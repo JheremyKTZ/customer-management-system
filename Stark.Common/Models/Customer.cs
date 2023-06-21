@@ -11,15 +11,12 @@ namespace Stark.Common.Models
         public Customer(int customerId)
         {
             CustomerId = customerId;
-            AddressList = new List<Address>();
         }
 
         public int CustomerId { get; private set; }
         public int CustomerType { get; set; }
         public string FirstName { get; set; }
-        public List<Address> AddressList { get; set; }
-
-        // full decleration of Lastname field
+        public List<Address> AddressList { get; set; } = new List<Address>();
         public string LastName { get; set; }
 
         public string FullName

@@ -1,7 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stark.BL.Repositories;
-using Stark.Common.Models;
-using System;
 
 namespace Stark.BLTest
 {
@@ -12,18 +11,14 @@ namespace Stark.BLTest
         public void RetrieveValid()
         {
             // Arrange
-            OrderRepository orderRepository = new OrderRepository();
-            Order expected = new Order(101)
-            {
-                OrderDate = DateTimeOffset.UtcNow
-            };
+            var ordersExpected = 2;
+            OrderRepository orderRepository = new OrderRepository(ordersExpected);
 
             // Act
-            Order actual = orderRepository.Retrieve(101);
+            var orders = orderRepository.RetrieveAll();
             
             // Assert
-            Assert.AreEqual(expected.OrderId, actual.OrderId);
-            Assert.AreEqual(expected.OrderDate, actual.OrderDate);
+            orders.Count.Should().Be(ordersExpected);
         }
     }
 }

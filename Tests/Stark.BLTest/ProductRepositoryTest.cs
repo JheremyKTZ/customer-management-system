@@ -1,6 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stark.BL.Repositories;
 using Stark.Common.Models;
+using System.Linq;
 
 namespace Stark.BLTest
 {
@@ -8,54 +10,50 @@ namespace Stark.BLTest
     public class ProductRepositoryTest
     {
         [TestMethod]
-        public void RetrieveValid()
+        public void RetrieveAll()
         {
             // Arrange
-            ProductRepository productRepository = new ProductRepository();
-
-            Product expected = new Product(2)
-            {
-                ProductName = "Mark_2",
-                Description = "Second version of Iron man suit",
-                CurrentPrice = 15.96M
-            };
+            var expectedProducts = 2;
+            ProductRepository productRepository = new ProductRepository(expectedProducts);
 
             // Act
-            Product actual = productRepository.Retrieve(2);
-
+            var products = productRepository.RetrieveAll();
+            
             // Assert
-            Assert.AreEqual(expected.ProductId, actual.ProductId);
-            Assert.AreEqual(expected.ProductName, actual.ProductName);
-            Assert.AreEqual(expected.Description, actual.Description);
-            Assert.AreEqual(expected.CurrentPrice, actual.CurrentPrice);
+            products.Count.Should().Be(expectedProducts);
         }
 
         [TestMethod()]
         public void SaveTestValid()
         {
             // Arrange
-            var productRepository = new ProductRepository();
-            var updatedProduct = new Product(2)
+            var expectedProducts = 2;
+            var productRepository = new ProductRepository(expectedProducts);
+
+            var productToUpdate = productRepository.RetrieveAll().First();
+
+            var updatedProduct = new Product(productToUpdate.ProductId)
             {
                 CurrentPrice = 18M,
                 ProductName = "Bat mobile",
                 Description = "Best vehicle in the world.",
-                HasChanges = true
+                HasChanges = true,
             };
 
             // Act
-            var actual = productRepository.Save(updatedProduct);
+            var savedSucceded = productRepository.Save(updatedProduct);
 
             // Assert
-            Assert.AreEqual(true, actual);
+            savedSucceded.Should().BeTrue();
         }
         
         [TestMethod()]
         public void SaveTestMissingPrice()
         {
             // Arrange
-            var productRepository = new ProductRepository();
-            var updatedProduct = new Product(2)
+            var expectedProducts = 2;
+            var productRepository = new ProductRepository(expectedProducts);
+            var updatedProduct = new Product(4)
             {
                 CurrentPrice = null,
                 Description = "Assorted size set of 4 bright yellow mini sunflowers.",
@@ -64,10 +62,10 @@ namespace Stark.BLTest
             };
 
             // Act
-            var actual = productRepository.Save(updatedProduct);
+            var savedSucceded = productRepository.Save(updatedProduct);
 
             // Assert
-            Assert.AreEqual(false, actual);
+            savedSucceded.Should().BeFalse();
         }
     }
 }

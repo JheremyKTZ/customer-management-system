@@ -5,21 +5,25 @@ using System.Linq;
 
 namespace Stark.BL.Repositories
 {
-    public class AddressRepository
+    public class AddressRepository : IRepository<Address>
     {
         private List<Address> _addresses = new List<Address>();
         private List<Customer> _customers = new List<Customer>();
 
-        public AddressRepository()
-        { }
+        public AddressRepository(List<Address> addresses, List<Customer> customers)
+        {
+            _addresses = addresses;
+            _customers = customers;
+        }
 
-        public AddressRepository(int quantity)
+        public AddressRepository(int addressQuantity, int customersQuantity)
         {
             if (_addresses.Any())
             {
                 return;
             }
-            (_customers, _addresses) = PartialBuilder.CreateCustomers(quantity, quantity * 2);
+
+            (_customers, _addresses) = PartialBuilder.CreateCustomers(addressQuantity, customersQuantity);
         }
 
         public IList<Address> RetrieveAll()
@@ -30,7 +34,7 @@ namespace Stark.BL.Repositories
         public Address Retrieve(int addressId)
         {
             return _addresses
-                .FirstOrDefault(a => a.AddressId == addressId);
+                .FirstOrDefault(a => a.AddressId == addressId) ?? new Address();
         }
 
         public IEnumerable<Address> RetrieveByCustomerId(int customerId)
@@ -43,12 +47,23 @@ namespace Stark.BL.Repositories
 
         public bool Save(Address address)
         {
-            _addresses.Add(address);
-            return true;
+            if (address.Validate())
+            {
+                _addresses.Add(address);
+                return true;
+            }
+            
+            return false;
         }
 
         public bool Delete(int addressId)
         {
+            var foundedAddress = _addresses.FindIndex(a => a.AddressId == addressId);
+            if (foundedAddress == -1)
+            {
+                return false;
+            }
+
             foreach (var customer in _customers)
             {
                 foreach (var address in customer.AddressList)
@@ -59,8 +74,7 @@ namespace Stark.BL.Repositories
                     }
                 }
             }
-
-            var foundedAddress = _addresses.FindIndex(a => a.AddressId == addressId);
+            
             _addresses.RemoveAt(foundedAddress);
 
             return true;

@@ -1,5 +1,4 @@
 ﻿using Stark.Common.Models;
-using Stark.Generators.Interfaces;
 using System.Collections.Generic;
 
 namespace Stark.BL.Repositories

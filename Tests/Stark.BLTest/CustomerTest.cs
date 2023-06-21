@@ -118,7 +118,6 @@ namespace Stark.BLTest
         public void RetrieveExistingWithAddress()
         {
             // Arrange
-            var customerRepository = new CustomerRepository();
             var expected = new Customer(1)
             {
                 FirstName = "Pepper",
@@ -146,8 +145,10 @@ namespace Stark.BLTest
                         PostalCode = "146",
                     }
                 }
-
             };
+
+            var customerRepository = new CustomerRepository(
+                new List<Customer>() { expected });
 
             // Act
             var actual = customerRepository.Retrieve(1);

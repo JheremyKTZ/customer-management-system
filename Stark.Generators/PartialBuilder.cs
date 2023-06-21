@@ -106,22 +106,24 @@ namespace Stark.Generators.Interfaces
             return (stubs.Customers.ToList(), stubs.Addresses.ToList());
         }
 
-        public static IList<Product> CreateProducts(int quantity)
+        public static List<Product> CreateProducts(int quantity)
         {
             var stubs =
                 ((IProductPartialGenerator)new PartialDataGenerator())
                 .GenerateOnlyProducts(quantity)
                 .GenerateStubs();
-            return stubs.Products;
+            return stubs.Products.ToList();
         }
 
         public static (List<Order>, List<Customer>, List<Product>) CreateOrders(
             int customersQuantity,
             int productsQuantity,
-            int ordersQuantity)
+            int ordersQuantity,
+            int addressQuantity)
         {
             var stubs =
-                ((ICustomerPartialGenerator)new PartialDataGenerator())
+                ((IAddressGenerator)new PartialDataGenerator())
+                .GenerateAddresses(addressQuantity)
                 .GenerateCustomers(customersQuantity)
                 .GenerateProducts(productsQuantity)
                 .GenerateOrders(ordersQuantity)
