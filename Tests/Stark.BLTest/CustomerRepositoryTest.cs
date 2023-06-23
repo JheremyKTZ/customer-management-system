@@ -8,7 +8,7 @@ namespace Stark.BLTest
     public class CustomerRepositoryTest
     {
         [TestMethod]
-        public void RetrieveAll()
+        public void RetrievesAll_WhenCustomersExist_ReturnsExpectedCountOfCustomers()
         {
             // Arrange
             var expectedCustomers = 2;

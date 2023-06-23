@@ -8,7 +8,7 @@ namespace Stark.BLTest
     public class OrderRepositoryTest
     {
         [TestMethod]
-        public void RetrieveValid()
+        public void RetrieveAll_WhenOrderExist_ReturnsExpectedCountOfOrders()
         {
             // Arrange
             var ordersExpected = 2;

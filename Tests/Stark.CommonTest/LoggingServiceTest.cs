@@ -9,7 +9,7 @@ namespace Stark.CommonTest
     public class LoggingServiceTest
     {
         [TestMethod]
-        public void WriteToFileTest()
+        public void LoggingService_GivenValidInformation_ShouldLogData()
         {
             // Arrange
             var changedItems = new List<ILoggable>();
