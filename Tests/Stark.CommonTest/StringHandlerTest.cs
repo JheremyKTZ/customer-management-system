@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stark.Common;
-using System;
 
 namespace Stark.CommonTest
 {
@@ -8,7 +7,7 @@ namespace Stark.CommonTest
     public class StringHandlerTest
     {
         [TestMethod]
-        public void InsertSpacesTestValid()
+        public void StringHandler_GivenStringWithNoSpaces_ReturnsStringSeparatedBySpace()
         {
             // Arrange
             var source = "IngcoScrewdriver";
@@ -24,7 +23,7 @@ namespace Stark.CommonTest
         }
 
         [TestMethod]
-        public void InsertSpacesTestWithExistingSpace()
+        public void StringHandler_GivenStringWithSpaces_ReturnsSameString()
         {
             // Arrange
             var source = "Ingco Screwdriver";

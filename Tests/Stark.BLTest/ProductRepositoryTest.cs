@@ -10,7 +10,7 @@ namespace Stark.BLTest
     public class ProductRepositoryTest
     {
         [TestMethod]
-        public void RetrieveAll()
+        public void RetrieveAll_WhenRepositoryHasInformation_ReturnsCountForAllProducts()
         {
             // Arrange
             var expectedProducts = 2;
@@ -24,7 +24,7 @@ namespace Stark.BLTest
         }
 
         [TestMethod()]
-        public void SaveTestValid()
+        public void Save_GivenExistingProduct_UpdatesProductReturnsTrue()
         {
             // Arrange
             var expectedProducts = 2;
@@ -48,7 +48,7 @@ namespace Stark.BLTest
         }
         
         [TestMethod()]
-        public void SaveTestMissingPrice()
+        public void Save_GivenNonExistingProduct_UpdatesProductReturnsFalse()
         {
             // Arrange
             var expectedProducts = 2;

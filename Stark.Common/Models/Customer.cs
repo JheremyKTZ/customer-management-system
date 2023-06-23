@@ -4,7 +4,7 @@ namespace Stark.Common.Models
 {
     public class Customer : EntityBase, ILoggable
     {
-        public Customer() : this(0) // Calling Customer(int customerId) contructor
+        public Customer() : this(0)
         {
         }
 
@@ -26,7 +26,7 @@ namespace Stark.Common.Models
                 string fullName = LastName;
                 if (!string.IsNullOrWhiteSpace(FirstName))
                 {
-                    if (!string.IsNullOrWhiteSpace(FullName))
+                    if (!string.IsNullOrWhiteSpace(fullName))
                     {
                         fullName += ", ";
                     }
