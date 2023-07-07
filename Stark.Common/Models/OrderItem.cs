@@ -6,11 +6,13 @@
         {
         }
 
-        public OrderItem(int orderItemId)
+        public OrderItem(int orderItemId, int orderId)
         {
             OrderItemId = orderItemId;
+            OrderId = orderId;
         }
 
+        public int OrderId { get; private set; }
         public int OrderItemId { get; private set; }
         public int ProductId { get; set; }
         public decimal? PurchasePrice { get; set; }

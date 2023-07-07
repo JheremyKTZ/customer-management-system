@@ -46,6 +46,7 @@
     <Compile Include="LoggingService.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\Customer.cs" />
+    <Compile Include="Models\CustomerType.cs" />
     <Compile Include="Models\EntityBase.cs" />
     <Compile Include="Models\EntityStateOption.cs" />
     <Compile Include="Models\Order.cs" />
