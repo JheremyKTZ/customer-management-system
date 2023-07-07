@@ -9,7 +9,7 @@ namespace Stark.Generators
         [DataTestMethod]
         [DataRow(5, 3, 4, 6)]
         [DataRow(4, 5, 6, 8)]
-        [DataRow(2, 3, 3, 4)]
+        [DataRow(3, 3, 3, 4)]
         public void DataBuilderCreate_GivenEntitiesQuantity_ReturnsBuildedCollectionsOfEntities(
             int addressQuantity, int customersQuantity, int productsQuantity, int ordersQuantity)
         {

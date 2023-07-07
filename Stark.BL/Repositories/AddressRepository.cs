@@ -7,33 +7,33 @@ namespace Stark.BL.Repositories
 {
     public class AddressRepository : IRepository<Address>
     {
-        private List<Address> _addresses = new List<Address>();
+        private List<Address> addresses = new List<Address>();
         private List<Customer> _customers = new List<Customer>();
 
         public AddressRepository(List<Address> addresses, List<Customer> customers)
         {
-            _addresses = addresses;
+            this.addresses = addresses;
             _customers = customers;
         }
 
         public AddressRepository(int addressQuantity, int customersQuantity)
         {
-            if (_addresses.Any())
+            if (addresses.Any())
             {
                 return;
             }
 
-            (_customers, _addresses) = PartialBuilder.CreateCustomers(addressQuantity, customersQuantity);
+            (_customers, addresses) = PartialBuilder.CreateCustomers(addressQuantity, customersQuantity);
         }
 
         public IList<Address> RetrieveAll()
         {
-            return _addresses;
+            return addresses;
         }
 
         public Address Retrieve(int addressId)
         {
-            return _addresses
+            return addresses
                 .FirstOrDefault(a => a.AddressId == addressId) ?? new Address();
         }
 
@@ -49,7 +49,7 @@ namespace Stark.BL.Repositories
         {
             if (address.Validate())
             {
-                _addresses.Add(address);
+                addresses.Add(address);
                 return true;
             }
             
@@ -58,7 +58,7 @@ namespace Stark.BL.Repositories
 
         public bool Delete(int addressId)
         {
-            var foundedAddress = _addresses.FindIndex(a => a.AddressId == addressId);
+            var foundedAddress = addresses.FindIndex(a => a.AddressId == addressId);
             if (foundedAddress == -1)
             {
                 return false;
@@ -75,7 +75,7 @@ namespace Stark.BL.Repositories
                 }
             }
             
-            _addresses.RemoveAt(foundedAddress);
+            addresses.RemoveAt(foundedAddress);
 
             return true;
         }

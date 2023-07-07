@@ -40,10 +40,7 @@ namespace Stark.Generators
 
             IBuildStubs IOrderGenerator.GenerateOrders(int quantity)
             {
-                var customerIds = _stubRecords.Customers
-                    .Select(c => c.CustomerId)
-                    .ToList();
-                _stubRecords.Orders = new OrderFaker(customerIds, _stubRecords.Products)
+                _stubRecords.Orders = new OrderFaker(_stubRecords.Customers, _stubRecords.Products)
                     .Generate(quantity);
 
                 return this;

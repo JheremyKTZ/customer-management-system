@@ -24,6 +24,10 @@ There are 2 approaches:
 - Use the Data Builder to Build stubs for all entities.
 - Use the Partial Data Builder to build stubs for a specific entity and its dependencies.
 
+**LINQ Playground**
+Small proyect that uses Data generator and writes a CSV file. The objective is to practice different LINQ statement; 
+you can choose if you want to use the CSV content or generate new information.
+
 ## Object-Oriented Programming Fundamentals in C#
 More information in this Pluralsight course
 https://app.pluralsight.com/library/courses/object-oriented-programming-fundamentals-csharp/table-of-contents

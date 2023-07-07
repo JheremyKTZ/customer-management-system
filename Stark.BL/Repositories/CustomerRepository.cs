@@ -7,7 +7,7 @@ namespace Stark.BL.Repositories
 {
     public class CustomerRepository : IRepository<Customer>
     {
-        private List<Customer> _customers = new List<Customer>();
+        private readonly List<Customer> _customers = new List<Customer>();
 
         public CustomerRepository(List<Customer> customers)
         {
