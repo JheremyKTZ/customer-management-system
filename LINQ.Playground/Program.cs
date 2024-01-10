@@ -38,17 +38,19 @@ namespace LINQ.Playground
             {
                 (_customers, _products, _addresses, _orders, _orderItems) =
                     FileService.WriteGeneratedDataToCsv(filePath);
-
                 PopulateDatabase();
                 Console.WriteLine("Information generated correctly, enjoy your play session.");
-                Console.ReadKey();
-                return;
             }
-
-            (_customers, _products, _addresses, _orders, _orderItems) =
+            else
+            {
+                (_customers, _products, _addresses, _orders, _orderItems) =
                 FileService.ReadGeneratedDataFromCsv(filePath);
-            PopulateDatabase();
-            Console.WriteLine("Information retrieved correctly, enjoy your play session.");
+                PopulateDatabase();
+                Console.WriteLine("Information retrieved correctly, enjoy your play session.");
+            }
+            
+            Console.WriteLine("Press a key to continue");
+            Console.ReadKey();
             Console.WriteLine("----------------------------------------------------------");
             var playground = new Playground(_customers, _products, _addresses, _orders, _orderItems);
             playground.Run();
