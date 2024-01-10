@@ -22,7 +22,7 @@ namespace Stark.BL.Repositories
 
         public OrderItem Retrieve(int orderItemId, int orderId)
         {
-            OrderItem item = new OrderItem(orderItemId);
+            OrderItem item = new OrderItem(orderItemId, orderId);
 
             if (orderItemId == 101)
             {
