@@ -5,7 +5,7 @@ namespace Stark.Generators.Entities
 {
     public class AddressFaker : Faker<Models.Address>
     {
-        public AddressFaker()
+        public AddressFaker(int customerId)
         {
             RuleFor(a => a.AddressId, f => f.IndexGlobal + 1);
             RuleFor(a => a.AddressType, f => f.PickRandom(new int[] { 1, 2, 3 }));
@@ -15,6 +15,7 @@ namespace Stark.Generators.Entities
             RuleFor(a => a.PostalCode, f => f.Address.ZipCode());
             RuleFor(a => a.AddressLine1, f => f.Address.StreetAddress());
             RuleFor(a => a.AddressLine2, f => f.Address.FullAddress());
+            RuleFor(a => a.CustomerId, customerId);
         }
     }
 }

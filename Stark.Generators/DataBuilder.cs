@@ -7,7 +7,7 @@ namespace Stark.Generators
     public class DataBuilder
     {
         private class DataGenerator :
-            IAddressGenerator, ICustomerGenerator, IProductGenerator, IOrderGenerator, IBuildStubs
+            ICustomerGenerator, IProductGenerator, IOrderGenerator, IBuildStubs
         {
             private StubRecords _stubRecords;
 
@@ -16,16 +16,13 @@ namespace Stark.Generators
                 _stubRecords = new StubRecords();
             }
 
-            ICustomerGenerator IAddressGenerator.GenerateAddresses(int quantity)
+            IProductGenerator ICustomerGenerator.GenerateCustomersAndAddresses(int quantity)
             {
-                _stubRecords.Addresses = new AddressFaker().Generate(quantity);
-                return this;
-            }
-
-            IProductGenerator ICustomerGenerator.GenerateCustomers(int quantity)
-            {
-                _stubRecords.Customers = new CustomerFaker(_stubRecords.Addresses)
+                _stubRecords.Customers = new CustomerFaker()
                     .Generate(quantity);
+                _stubRecords.Addresses = _stubRecords.Customers
+                    .SelectMany(c => c.AddressList)
+                    .ToList();
 
                 return this;
             }
@@ -52,7 +49,7 @@ namespace Stark.Generators
             }
         }
 
-        public static IAddressGenerator Create()
+        public static ICustomerGenerator Create()
         {
             return new DataGenerator();
         }

@@ -1,14 +1,6 @@
-﻿using CsvHelper;
-using CsvHelper.Configuration;
-using Dapper;
-using Stark.Common.Models;
-using Stark.Generators;
+﻿using Stark.Common.Models;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Globalization;
-using System.IO;
-using System.Linq;
 
 namespace LINQ.Playground
 {

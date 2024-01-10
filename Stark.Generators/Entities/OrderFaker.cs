@@ -25,15 +25,9 @@ namespace Stark.Generators.Entities
             RuleFor(o => o.ShippingAddressId, (f, v) => f.Random.ListItem(customerData[v.CustomerId]));
             RuleFor(o => o.OrderItems, (f, o) =>
             {
-                var product = f.Random.ListItem(products);
-                return f.Make(
-                    f.Random.Number(1, 5),
-                    () => new OrderItem(f.IndexGlobal + 1, o.OrderId)
-                    {
-                        Quantity = f.Random.Int(1, 100),
-                        ProductId = product.ProductId,
-                        PurchasePrice = product.CurrentPrice * f.Random.Number(1, 2)
-                    });
+                var faker = new OrderItemFaker(
+                    o.OrderId, products);
+                return faker.GenerateBetween(1, 5);
             });
         }
     }

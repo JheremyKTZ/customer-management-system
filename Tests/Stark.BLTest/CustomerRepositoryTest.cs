@@ -12,7 +12,7 @@ namespace Stark.BLTest
         {
             // Arrange
             var expectedCustomers = 2;
-            CustomerRepository customerRepository = new CustomerRepository(expectedCustomers, 2);
+            CustomerRepository customerRepository = new CustomerRepository(expectedCustomers);
 
             // Act
             var customers = customerRepository.RetrieveAll();

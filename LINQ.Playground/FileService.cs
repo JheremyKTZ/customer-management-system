@@ -77,8 +77,7 @@ namespace LINQ.Playground
             WriteGeneratedDataToCsv(string filePath)
         {
             var data = DataBuilder.Create()
-                               .GenerateAddresses(60)
-                               .GenerateCustomers(60)
+                               .GenerateCustomersAndAddresses(60)
                                .GenerateProducts(75)
                                .GenerateOrders(62)
                                .GenerateStubs();

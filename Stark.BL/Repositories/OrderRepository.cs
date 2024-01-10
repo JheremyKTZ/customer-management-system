@@ -24,7 +24,6 @@ namespace Stark.BL.Repositories
             (_orders, _, _) = PartialBuilder.CreateOrders(
                 ordersQuantity,
                 ordersQuantity,
-                ordersQuantity,
                 ordersQuantity);
         }
 

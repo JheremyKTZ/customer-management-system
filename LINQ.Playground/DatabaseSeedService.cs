@@ -14,7 +14,7 @@ namespace LINQ.Playground
             List<Order> orders,
             List<OrderItem> orderItems)
         {
-            string connectionString = "";
+            string connectionString = "Data Source=localhost;Initial Catalog=Stark.CustomerManagementSystem.Database;Integrated Security=True";
 
             string sqlForProducts = "INSERT INTO Products (Id, Name, Description, CurrentPrice)" +
                 " VALUES (@ProductId, @ProductName, @Description, @CurrentPrice)";
@@ -30,26 +30,29 @@ namespace LINQ.Playground
 
             using (var connection = new SqlConnection(connectionString))
             {
-                // Use Dapper's Execute method to insert multiple records
                 connection.Execute(sqlForCustomers, customers);
             }
 
-            string sqlForAddresses = "INSERT INTO Addresses (Id, AddressLine1, AddressLine2, City, State, PostalCode, Country, Type)" +
-                " VALUES (@AddressId, @CustomerType, @AddressLine1, @AddressLine2, @City, @State, @PostalCode, @AddressType )";
+            string sqlForAddresses = "INSERT INTO Addresses (Id, AddressLine1, AddressLine2, City, State, PostalCode, Country, Type, CustomerId)" +
+                " VALUES (@AddressId, @CustomerType, @AddressLine1, @AddressLine2, @City, @State, @PostalCode, @AddressType, @CustomerId)";
 
             using (var connection = new SqlConnection(connectionString))
             {
-                // Use Dapper's Execute method to insert multiple records
                 connection.Execute(sqlForAddresses, addresses);
             }
 
-            string sqlForOrders = "INSERT INTO Orders (Id, AddressLine1, AddressLine2, City, State, PostalCode, Country, Type)" +
-                " VALUES (@AddressId, @CustomerType, @AddressLine1, @AddressLine2, @City, @State, @PostalCode, @AddressType )";
-
+            string sqlForOrders = "INSERT INTO Orders (Id, CustomerId, Date, ShippingAddressId)" +
+                " VALUES (@OrderId, @CustomerId, @OrderDate, @ShippingAddressId)";
             using (var connection = new SqlConnection(connectionString))
             {
-                // Use Dapper's Execute method to insert multiple records
                 connection.Execute(sqlForOrders, orders);
+            }
+
+            string sqlForOrdersItems = "INSERT INTO OrderItems (Id, ProductId, PurchasePrice, Quantity, OrderId)" +
+                " VALUES (@OrderItemId, @ProductId, @PurchasePrice, @Quantity, @OrderId)";
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Execute(sqlForOrdersItems, orderItems);
             }
         }
     }

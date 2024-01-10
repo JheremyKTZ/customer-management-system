@@ -48,9 +48,8 @@
     <Compile Include="Entities\AddressFaker.cs" />
     <Compile Include="Entities\CustomerFaker.cs" />
     <Compile Include="Entities\OrderFaker.cs" />
+    <Compile Include="Entities\OrderItemFaker.cs" />
     <Compile Include="Entities\ProductFaker.cs" />
-    <Compile Include="Interfaces\IAddressGenerator.cs" />
-    <Compile Include="Interfaces\IAddressPartialGenerator.cs" />
     <Compile Include="Interfaces\IBuildStubs.cs" />
     <Compile Include="Interfaces\ICustomerGenerator.cs" />
     <Compile Include="Interfaces\ICustomerPartialGenerator.cs" />

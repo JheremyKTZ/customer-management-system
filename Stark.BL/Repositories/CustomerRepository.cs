@@ -14,7 +14,7 @@ namespace Stark.BL.Repositories
             _customers = customers;
         }
 
-        public CustomerRepository(int customersQuantity, int addressesQuantity)
+        public CustomerRepository(int customersQuantity)
         {
             if (_customers.Any())
             {
@@ -22,7 +22,7 @@ namespace Stark.BL.Repositories
             }
 
             (_customers, _) = PartialBuilder
-                .CreateCustomers(addressesQuantity, customersQuantity);
+                .CreateCustomers(customersQuantity);
         }
 
         public IList<Customer> RetrieveAll() => _customers;

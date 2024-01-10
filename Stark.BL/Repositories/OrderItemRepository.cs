@@ -1,4 +1,5 @@
 ﻿using Stark.Common.Models;
+using Stark.Generators.Interfaces;
 using System.Collections.Generic;
 
 namespace Stark.BL.Repositories
@@ -13,19 +14,15 @@ namespace Stark.BL.Repositories
 
         public OrderItemRepository(int customers, int products, int orders)
         {
-            //if (_addresses.Any())
-            //{
-            //    return;
-            //}
-            //(_orders, _customers, _addresses) = PartialBuilder.CreateOrders(
-            //    customers,
-            //    products,
-            //    orders);
+            (_orders, _, _) = PartialBuilder.CreateOrders(
+                customers,
+                products,
+                orders);
         }
 
-        public OrderItem Retrieve(int orderItemId)
+        public OrderItem Retrieve(int orderItemId, int orderId)
         {
-            OrderItem item = new OrderItem(orderItemId);
+            OrderItem item = new OrderItem(orderItemId, orderId);
 
             if (orderItemId == 101)
             {

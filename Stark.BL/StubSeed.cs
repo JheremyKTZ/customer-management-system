@@ -11,12 +11,11 @@ namespace Stark.BL
         public static IList<Order> Orders { get; private set; }
         public static IList<Product> Products { get; private set; }
 
-        public static void SeedUsingBuilder(int addressesQuantity, int customersQuantity, int productsQuantity, int ordersQuantity)
+        public static void SeedUsingBuilder(int customersQuantity, int productsQuantity, int ordersQuantity)
         {
             var stubs = DataBuilder
                 .Create()
-                .GenerateAddresses(addressesQuantity)
-                .GenerateCustomers(customersQuantity)
+                .GenerateCustomersAndAddresses(customersQuantity)
                 .GenerateProducts(productsQuantity)
                 .GenerateOrders(ordersQuantity)
                 .GenerateStubs();

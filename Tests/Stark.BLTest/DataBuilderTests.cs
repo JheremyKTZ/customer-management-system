@@ -7,20 +7,19 @@ namespace Stark.Generators
     public class DataBuilderTests
     {
         [DataTestMethod]
-        [DataRow(5, 3, 4, 6)]
-        [DataRow(4, 5, 6, 8)]
-        [DataRow(3, 3, 3, 4)]
+        [DataRow(3, 4, 6)]
+        [DataRow(5, 6, 8)]
+        [DataRow(3, 3, 4)]
         public void DataBuilderCreate_GivenEntitiesQuantity_ReturnsBuildedCollectionsOfEntities(
-            int addressQuantity, int customersQuantity, int productsQuantity, int ordersQuantity)
+            int customersQuantity, int productsQuantity, int ordersQuantity)
         {
             var stubs = DataBuilder.Create()
-                .GenerateAddresses(addressQuantity)
-                .GenerateCustomers(customersQuantity)
+                .GenerateCustomersAndAddresses(customersQuantity)
                 .GenerateProducts(productsQuantity)
                 .GenerateOrders(ordersQuantity)
                 .GenerateStubs();
 
-            stubs.Addresses.Count.Should().Be(addressQuantity);
+            stubs.Addresses.Count.Should().BeGreaterThanOrEqualTo(customersQuantity);
             stubs.Customers.Count.Should().Be(customersQuantity);
             stubs.Products.Count.Should().Be(productsQuantity);
             stubs.Orders.Count.Should().Be(ordersQuantity);

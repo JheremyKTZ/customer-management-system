@@ -2,6 +2,6 @@
 {
     public interface ICustomerGenerator
     {
-        IProductGenerator GenerateCustomers(int quantity);
+        IProductGenerator GenerateCustomersAndAddresses(int quantity);
     }
 }

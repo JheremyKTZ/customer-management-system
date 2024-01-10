@@ -23,7 +23,7 @@ namespace Stark.BL.Repositories
                 return;
             }
 
-            (_customers, addresses) = PartialBuilder.CreateCustomers(addressQuantity, customersQuantity);
+            (_customers, addresses) = PartialBuilder.CreateCustomers(customersQuantity);
         }
 
         public IList<Address> RetrieveAll()
