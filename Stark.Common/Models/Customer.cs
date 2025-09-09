@@ -50,7 +50,6 @@ namespace Stark.Common.Models
             return isValid;
         }
 
-        // Propiedad de navegación para EF Core: un Customer tiene muchos Orders
         public ICollection<Order> Orders { get; set; } = new List<Order>();
     }
 }

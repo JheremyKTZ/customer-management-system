@@ -27,7 +27,6 @@
             return IsValid;
         }
 
-        // Navegación a Customer
         public Customer Customer { get; set; }
     }
 }

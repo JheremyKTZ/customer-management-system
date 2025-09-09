@@ -31,7 +31,6 @@ namespace Stark.Common.Models
             return IsValid;
         }
 
-        // Navegaciones EF Core
         public Customer Customer { get; set; }
         public Address ShippingAddress { get; set; }
     }
