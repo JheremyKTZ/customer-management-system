@@ -1,8 +1,4 @@
-﻿using Stark.Common.Models;
-using Stark.Generators;
-using System.Collections.Generic;
-
-namespace Stark.BL
+﻿namespace Stark.BL
 {
     internal static class StubSeed
     {

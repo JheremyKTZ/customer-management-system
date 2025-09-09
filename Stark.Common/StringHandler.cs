@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Stark.Common
+﻿namespace Stark.Common
 {
     public static class StringHandler
     {

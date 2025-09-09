@@ -1,7 +1,4 @@
-﻿using Stark.Common.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Stark.Common.Models;
 
 namespace LINQ.Playground
 {
@@ -29,7 +26,7 @@ namespace LINQ.Playground
 
         internal void Run()
         {
-            Console.WriteLine("Get Customers With Names starting with B");
+            Console.WriteLine("Get customers with names that start with B");
 
             var customersThatStartWithB = Customers
                 .Where(c => c.FullName.StartsWith("B"))
@@ -41,7 +38,13 @@ namespace LINQ.Playground
                 })
                 .ToList();
 
-            Console.WriteLine("Get Top 10 Addresses that contains a City with more than 1 word");
+            Console.WriteLine($"Found {customersThatStartWithB.Count} customers that start with B");
+            foreach (var customer in customersThatStartWithB.Take(5))
+            {
+                Console.WriteLine($"- {customer.FullName} ({customer.Email})");
+            }
+
+            Console.WriteLine("\nGet the top 10 addresses that contain a city with more than 1 word");
 
             var addressesLongCountry = Addresses
                 .Where(a => a.City.Split(' ').Length > 1)
@@ -59,22 +62,37 @@ namespace LINQ.Playground
                 .Take(10)
                 .ToList();
 
-            Console.WriteLine("Get next top 10 Orders that have the most recent order date");
+            Console.WriteLine($"Found {addressesLongCountry.Count} addresses with multi-word cities");
+            foreach (var address in addressesLongCountry)
+            {
+                Console.WriteLine($"- {address.City} ({address.CityWords} words) - {address.Country}");
+            }
+
+            Console.WriteLine("\nGet the next 10 orders that have the most recent order date");
             var recentlyOrderedOrders = Orders
                 .OrderByDescending(o => o.OrderDate)
                 .Skip(10)
                 .Take(10)
                 .ToList();
 
-            Console.WriteLine("Get the top and the bottom order items, by quantity and the price");
+            Console.WriteLine($"Found {recentlyOrderedOrders.Count} recent orders");
+            foreach (var order in recentlyOrderedOrders.Take(5))
+            {
+                Console.WriteLine($"- Order {order.OrderId} from {order.OrderDate:yyyy-MM-dd}");
+            }
+
+            Console.WriteLine("\nGet the top and bottom order item, by quantity and price");
             var orderedItems = OrderItems
                 .OrderByDescending(o => o.Quantity)
                 .ThenBy(o => o.PurchasePrice);
             var topOrderItem = orderedItems.First();
             var bottomOrderItem = orderedItems.Last();
 
-            Console.WriteLine("Get Customer Information from Orders");
-            var ordersWithCusomers = Orders
+            Console.WriteLine($"Item with highest quantity: {topOrderItem.Quantity} units at ${topOrderItem.PurchasePrice}");
+            Console.WriteLine($"Item with lowest quantity: {bottomOrderItem.Quantity} units at ${bottomOrderItem.PurchasePrice}");
+
+            Console.WriteLine("\nGet customer information from orders");
+            var ordersWithCustomers = Orders
                 .Join(Customers,
                     o => o.CustomerId,
                     c => c.CustomerId,
@@ -88,6 +106,12 @@ namespace LINQ.Playground
                         Items = o.OrderItems.Count
                     })
                 .ToList();
+
+            Console.WriteLine($"Found {ordersWithCustomers.Count} orders with customer information");
+            foreach (var order in ordersWithCustomers.Take(5))
+            {
+                Console.WriteLine($"- Order {order.OrderId} from {order.FullName} ({order.Items} items)");
+            }
         }
     }
 }

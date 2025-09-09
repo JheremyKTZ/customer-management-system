@@ -1,7 +1,7 @@
-﻿using Dapper;
+using Dapper;
 using Stark.Common.Models;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 namespace LINQ.Playground
 {
@@ -21,7 +21,7 @@ namespace LINQ.Playground
 
             using (var connection = new SqlConnection(connectionString))
             {
-                // Use Dapper's Execute method to insert multiple records
+                // Using Dapper's Execute method to insert multiple records
                 connection.Execute(sqlForProducts, products);
             }
 
@@ -48,11 +48,11 @@ namespace LINQ.Playground
                 connection.Execute(sqlForOrders, orders);
             }
 
-            string sqlForOrdersItems = "INSERT INTO OrderItems (Id, ProductId, PurchasePrice, Quantity, OrderId)" +
-                " VALUES (@OrderItemId, @ProductId, @PurchasePrice, @Quantity, @OrderId)";
+            string sqlForOrderItems = "INSERT INTO OrderItems (Id, OrderId, ProductId, Quantity, PurchasePrice)" +
+                " VALUES (@OrderItemId, @OrderId, @ProductId, @Quantity, @PurchasePrice)";
             using (var connection = new SqlConnection(connectionString))
             {
-                connection.Execute(sqlForOrdersItems, orderItems);
+                connection.Execute(sqlForOrderItems, orderItems);
             }
         }
     }

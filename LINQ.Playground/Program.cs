@@ -1,6 +1,4 @@
-﻿using Stark.Common.Models;
-using System;
-using System.Collections.Generic;
+using Stark.Common.Models;
 
 namespace LINQ.Playground
 {
@@ -14,54 +12,55 @@ namespace LINQ.Playground
 
         static void Main(string[] _)
         {
-            Console.WriteLine("Welcome to LINQ playground");
-            Console.WriteLine("Select 1 to generate new Data.");
-            Console.WriteLine("Select 2 to use saved Data.");
+            Console.WriteLine("Welcome to the LINQ playground");
+            Console.WriteLine("Select 1 to generate new data.");
+            Console.WriteLine("Select 2 to use saved data.");
             bool success;
             int numberSelected;
             do
             {
-                var optionInput = Console.ReadLine().ToString().Trim();
+                var optionInput = Console.ReadLine()?.ToString().Trim() ?? "";
                 success = int.TryParse(optionInput, out int number);
                 numberSelected = number;
                 if (!success || numberSelected == 0 || numberSelected > 2)
                 {
                     success = false;
-                    Console.WriteLine("Option does not exist; plese try again. Select option 1 or 2");
+                    Console.WriteLine("The option does not exist; please try again. Select option 1 or 2");
                 }
             } while (!success);
 
-            // TODO: Validate if path is valid, use try catch 
-            Console.WriteLine("Enter the file path for the CSV file:");
-            string filePath = Console.ReadLine();
+            // TODO: Validate if the path is valid, use try catch 
+            Console.WriteLine("Enter the CSV file path:");
+            string filePath = Console.ReadLine() ?? "";
             if (numberSelected == 1)
             {
                 (_customers, _products, _addresses, _orders, _orderItems) =
                     FileService.WriteGeneratedDataToCsv(filePath);
                 PopulateDatabase();
-                Console.WriteLine("Information generated correctly, enjoy your play session.");
+                Console.WriteLine("Information generated successfully, enjoy your practice session.");
             }
             else
             {
                 (_customers, _products, _addresses, _orders, _orderItems) =
                 FileService.ReadGeneratedDataFromCsv(filePath);
                 PopulateDatabase();
-                Console.WriteLine("Information retrieved correctly, enjoy your play session.");
+                Console.WriteLine("Information retrieved successfully, enjoy your practice session.");
             }
-            
-            Console.WriteLine("Press a key to continue");
-            Console.ReadKey();
+
+            Console.WriteLine("Press Enter to continue");
+            Console.ReadLine();
             Console.WriteLine("----------------------------------------------------------");
             var playground = new Playground(_customers, _products, _addresses, _orders, _orderItems);
             playground.Run();
-            Console.ReadKey();
+            Console.WriteLine("Press Enter to exit");
+            Console.ReadLine();
         }
 
         private static void PopulateDatabase()
         {
-            Console.WriteLine("Do you want to populate your database with the information generated?");
+            Console.WriteLine("Do you want to populate your database with the generated information?");
             Console.WriteLine("1: Yes, 2: No");
-            var input = Console.ReadLine().Trim();
+            var input = Console.ReadLine()?.Trim() ?? "";
             var success = int.TryParse(input, out int number);
             if (!success || number <= 0 || number >= 3)
             {
@@ -73,7 +72,7 @@ namespace LINQ.Playground
                 return;
             }
 
-            Console.WriteLine("Populating database");
+            Console.WriteLine("Populating the database");
             DatabaseSeedService.FillDatabase(_customers, _products, _addresses, _orders, _orderItems);
             return;
         }
