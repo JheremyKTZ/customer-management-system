@@ -2,11 +2,7 @@
 using CsvHelper.Configuration;
 using Stark.Common.Models;
 using Stark.Generators;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 
 namespace LINQ.Playground
 {

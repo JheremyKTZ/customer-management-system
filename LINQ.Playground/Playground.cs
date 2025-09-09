@@ -1,7 +1,4 @@
 using Stark.Common.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace LINQ.Playground
 {
@@ -29,7 +26,7 @@ namespace LINQ.Playground
 
         internal void Run()
         {
-            Console.WriteLine("Obtener clientes con nombres que empiecen con B");
+            Console.WriteLine("Get customers with names that start with B");
 
             var customersThatStartWithB = Customers
                 .Where(c => c.FullName.StartsWith("B"))
@@ -41,13 +38,13 @@ namespace LINQ.Playground
                 })
                 .ToList();
 
-            Console.WriteLine($"Se encontraron {customersThatStartWithB.Count} clientes que empiezan con B");
+            Console.WriteLine($"Found {customersThatStartWithB.Count} customers that start with B");
             foreach (var customer in customersThatStartWithB.Take(5))
             {
                 Console.WriteLine($"- {customer.FullName} ({customer.Email})");
             }
 
-            Console.WriteLine("\nObtener los 10 mejores direcciones que contienen una ciudad con más de 1 palabra");
+            Console.WriteLine("\nGet the top 10 addresses that contain a city with more than 1 word");
 
             var addressesLongCountry = Addresses
                 .Where(a => a.City.Split(' ').Length > 1)
@@ -65,36 +62,36 @@ namespace LINQ.Playground
                 .Take(10)
                 .ToList();
 
-            Console.WriteLine($"Se encontraron {addressesLongCountry.Count} direcciones con ciudades de múltiples palabras");
+            Console.WriteLine($"Found {addressesLongCountry.Count} addresses with multi-word cities");
             foreach (var address in addressesLongCountry)
             {
-                Console.WriteLine($"- {address.City} ({address.CityWords} palabras) - {address.Country}");
+                Console.WriteLine($"- {address.City} ({address.CityWords} words) - {address.Country}");
             }
 
-            Console.WriteLine("\nObtener los siguientes 10 pedidos que tienen la fecha de pedido más reciente");
+            Console.WriteLine("\nGet the next 10 orders that have the most recent order date");
             var recentlyOrderedOrders = Orders
                 .OrderByDescending(o => o.OrderDate)
                 .Skip(10)
                 .Take(10)
                 .ToList();
 
-            Console.WriteLine($"Se encontraron {recentlyOrderedOrders.Count} pedidos recientes");
+            Console.WriteLine($"Found {recentlyOrderedOrders.Count} recent orders");
             foreach (var order in recentlyOrderedOrders.Take(5))
             {
-                Console.WriteLine($"- Pedido {order.OrderId} del {order.OrderDate:yyyy-MM-dd}");
+                Console.WriteLine($"- Order {order.OrderId} from {order.OrderDate:yyyy-MM-dd}");
             }
 
-            Console.WriteLine("\nObtener el elemento de pedido superior e inferior, por cantidad y precio");
+            Console.WriteLine("\nGet the top and bottom order item, by quantity and price");
             var orderedItems = OrderItems
                 .OrderByDescending(o => o.Quantity)
                 .ThenBy(o => o.PurchasePrice);
             var topOrderItem = orderedItems.First();
             var bottomOrderItem = orderedItems.Last();
 
-            Console.WriteLine($"Elemento con mayor cantidad: {topOrderItem.Quantity} unidades a ${topOrderItem.PurchasePrice}");
-            Console.WriteLine($"Elemento con menor cantidad: {bottomOrderItem.Quantity} unidades a ${bottomOrderItem.PurchasePrice}");
+            Console.WriteLine($"Item with highest quantity: {topOrderItem.Quantity} units at ${topOrderItem.PurchasePrice}");
+            Console.WriteLine($"Item with lowest quantity: {bottomOrderItem.Quantity} units at ${bottomOrderItem.PurchasePrice}");
 
-            Console.WriteLine("\nObtener información del cliente desde los pedidos");
+            Console.WriteLine("\nGet customer information from orders");
             var ordersWithCustomers = Orders
                 .Join(Customers,
                     o => o.CustomerId,
@@ -110,10 +107,10 @@ namespace LINQ.Playground
                     })
                 .ToList();
 
-            Console.WriteLine($"Se encontraron {ordersWithCustomers.Count} pedidos con información de clientes");
+            Console.WriteLine($"Found {ordersWithCustomers.Count} orders with customer information");
             foreach (var order in ordersWithCustomers.Take(5))
             {
-                Console.WriteLine($"- Pedido {order.OrderId} de {order.FullName} ({order.Items} artículos)");
+                Console.WriteLine($"- Order {order.OrderId} from {order.FullName} ({order.Items} items)");
             }
         }
     }

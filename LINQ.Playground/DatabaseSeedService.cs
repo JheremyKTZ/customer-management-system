@@ -21,7 +21,7 @@ namespace LINQ.Playground
 
             using (var connection = new SqlConnection(connectionString))
             {
-                // Usar el método Execute de Dapper para insertar múltiples registros
+                // Using Dapper's Execute method to insert multiple records
                 connection.Execute(sqlForProducts, products);
             }
 
