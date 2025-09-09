@@ -49,5 +49,7 @@ namespace Stark.Common.Models
             bool isValid = string.IsNullOrWhiteSpace(LastName) || string.IsNullOrWhiteSpace(Email) ? false : true;
             return isValid;
         }
+
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
     }
 }

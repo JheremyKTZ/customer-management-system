@@ -1,4 +1,11 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Stark.BL;
 using Stark.Common.Models;
+using System;
+using System.Collections.Generic;
 
 namespace LINQ.Playground
 {
@@ -25,11 +32,10 @@ namespace LINQ.Playground
                 if (!success || numberSelected == 0 || numberSelected > 2)
                 {
                     success = false;
-                    Console.WriteLine("The option does not exist; please try again. Select option 1 or 2");
+                    Console.WriteLine("The option doesn't exist; please try again. Select option 1 or 2");
                 }
             } while (!success);
 
-            // TODO: Validate if the path is valid, use try catch 
             Console.WriteLine("Enter the CSV file path:");
             string filePath = Console.ReadLine() ?? "";
             if (numberSelected == 1)
@@ -46,7 +52,7 @@ namespace LINQ.Playground
                 PopulateDatabase();
                 Console.WriteLine("Information retrieved successfully, enjoy your practice session.");
             }
-
+            
             Console.WriteLine("Press Enter to continue");
             Console.ReadLine();
             Console.WriteLine("----------------------------------------------------------");
@@ -72,9 +78,44 @@ namespace LINQ.Playground
                 return;
             }
 
-            Console.WriteLine("Populating the database");
-            DatabaseSeedService.FillDatabase(_customers, _products, _addresses, _orders, _orderItems);
+            Console.WriteLine("Populating the SQLite database");
+            PopulateSqliteDatabase();
             return;
+        }
+
+        private static void PopulateSqliteDatabase()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
+            optionsBuilder.UseSqlite("Data Source=stark_database.db");
+            
+            using var context = new AppDbContext(optionsBuilder.Options);
+            
+            context.OrderItems.RemoveRange(context.OrderItems);
+            context.Orders.RemoveRange(context.Orders);
+            context.Addresses.RemoveRange(context.Addresses);
+            context.Products.RemoveRange(context.Products);
+            context.Customers.RemoveRange(context.Customers);
+            context.SaveChanges();
+
+            // Add new data
+            context.Customers.AddRange(_customers);
+            context.Products.AddRange(_products);
+            context.Addresses.AddRange(_addresses);
+            context.Orders.AddRange(_orders);
+            context.OrderItems.AddRange(_orderItems);
+            
+            context.SaveChanges();
+            Console.WriteLine("SQLite database populated successfully!");
+        }
+    }
+
+    public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
+    {
+        public AppDbContext CreateDbContext(string[] args)
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
+            optionsBuilder.UseSqlite("Data Source=stark_database.db");
+            return new AppDbContext(optionsBuilder.Options);
         }
     }
 }

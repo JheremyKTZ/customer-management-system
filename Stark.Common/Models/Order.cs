@@ -30,5 +30,8 @@ namespace Stark.Common.Models
             bool IsValid = OrderDate == null ? false : true;
             return IsValid;
         }
+
+        public Customer Customer { get; set; }
+        public Address ShippingAddress { get; set; }
     }
 }

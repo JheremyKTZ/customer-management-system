@@ -18,8 +18,6 @@
         {
             get
             {
-                //var stringHandler = new StringHandler();
-                //return StringHandler.InsertSpaces(productName);
                 return productName.InsertSpaces();
             }
             set { productName = value; }

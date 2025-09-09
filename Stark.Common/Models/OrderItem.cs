@@ -23,5 +23,8 @@
             bool isValid = Quantity <= 0 || ProductId <= 0 || PurchasePrice == null ? false : true;
             return isValid;
         }
+
+        public Order Order { get; set; }
+        public Product Product { get; set; }
     }
 }
