@@ -12,7 +12,7 @@
         }
 
         public int AddressId { get; private set; }
-        public int CustomerId { get; private set; }
+        public int CustomerId { get; set; }
         public string AddressLine1 { get; set; }
         public string AddressLine2 { get; set; }
         public string City { get; set; }
@@ -26,5 +26,8 @@
             bool IsValid = PostalCode == null ? false : true;
             return IsValid;
         }
+
+        // Navegación a Customer
+        public Customer Customer { get; set; }
     }
 }

@@ -49,5 +49,8 @@ namespace Stark.Common.Models
             bool isValid = string.IsNullOrWhiteSpace(LastName) || string.IsNullOrWhiteSpace(Email) ? false : true;
             return isValid;
         }
+
+        // Propiedad de navegación para EF Core: un Customer tiene muchos Orders
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
     }
 }

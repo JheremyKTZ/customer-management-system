@@ -30,5 +30,9 @@ namespace Stark.Common.Models
             bool IsValid = OrderDate == null ? false : true;
             return IsValid;
         }
+
+        // Navegaciones EF Core
+        public Customer Customer { get; set; }
+        public Address ShippingAddress { get; set; }
     }
 }
