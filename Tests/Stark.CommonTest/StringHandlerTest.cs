@@ -1,12 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using Stark.Common;
 
 namespace Stark.CommonTest
 {
-    [TestClass]
     public class StringHandlerTest
     {
-        [TestMethod]
+        [Fact]
         public void StringHandler_GivenStringWithNoSpaces_ReturnsStringSeparatedBySpace()
         {
             // Arrange
@@ -19,10 +18,10 @@ namespace Stark.CommonTest
             var actual = source.InsertSpaces();
 
             // Assert
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [TestMethod]
+        [Fact]
         public void StringHandler_GivenStringWithSpaces_ReturnsSameString()
         {
             // Arrange
@@ -35,7 +34,7 @@ namespace Stark.CommonTest
             var actual = source.InsertSpaces();
 
             // Assert
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
     }
 }

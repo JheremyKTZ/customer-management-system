@@ -1,13 +1,12 @@
-﻿using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using FluentAssertions;
+using Xunit;
 using Stark.BL.Repositories;
 
 namespace Stark.BLTest
 {
-    [TestClass]
     public class CustomerRepositoryTest
     {
-        [TestMethod]
+        [Fact]
         public void RetrievesAll_WhenCustomersExist_ReturnsExpectedCountOfCustomers()
         {
             // Arrange

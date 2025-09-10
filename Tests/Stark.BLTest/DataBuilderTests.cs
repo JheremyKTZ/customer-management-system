@@ -1,15 +1,15 @@
-﻿using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using FluentAssertions;
+using Xunit;
+using Stark.Generators;
 
-namespace Stark.Generators
+namespace Stark.BLTest
 {
-    [TestClass]
     public class DataBuilderTests
     {
-        [DataTestMethod]
-        [DataRow(3, 4, 6)]
-        [DataRow(5, 6, 8)]
-        [DataRow(3, 3, 4)]
+        [Theory]
+        [InlineData(3, 4, 6)]
+        [InlineData(5, 6, 8)]
+        [InlineData(3, 3, 4)]
         public void DataBuilderCreate_GivenEntitiesQuantity_ReturnsBuildedCollectionsOfEntities(
             int customersQuantity, int productsQuantity, int ordersQuantity)
         {
