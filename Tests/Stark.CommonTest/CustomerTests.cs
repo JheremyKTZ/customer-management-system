@@ -1,12 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using Stark.Common.Models;
 
 namespace Stark.CommonTest
 {
-    [TestClass]
     public class CustomerTests
     {
-        [TestMethod]
+        [Fact]
         public void Customer_GivenValidFullName_ReturnsExpectedNameFormat()
         {
             // Arrange
@@ -21,10 +20,10 @@ namespace Stark.CommonTest
             string actual = customer.FullName;
 
             // Assert
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [TestMethod]
+        [Fact]
         public void Customer_GivenEmptyFirstName_ReturnsOnlyLastNameInFullName()
         {
             // Arrange
@@ -35,10 +34,10 @@ namespace Stark.CommonTest
             string actual = customer.FullName;
 
             // Assert
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [TestMethod]
+        [Fact]
         public void Customer_GivenEmptyLastName_ReturnsOnlyFirstNameInFullName()
         {
             // Arrange
@@ -49,10 +48,10 @@ namespace Stark.CommonTest
             string actual = customer.FullName;
 
             // Assert
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [TestMethod]
+        [Fact]
         public void CustomerInstanceCount_GivenMultipleCustomers_ShouldReturnTheCount()
         {
             // Arrange
@@ -66,10 +65,10 @@ namespace Stark.CommonTest
 
             // Act
             // Assert
-            Assert.AreEqual(3, Customer.InstanceCount);
+            Assert.Equal(3, Customer.InstanceCount);
         }
 
-        [TestMethod]
+        [Fact]
         public void CustomerValidate_GivenValidInformation_ShouldReturnTrue()
         {
             // Arrange
@@ -81,11 +80,10 @@ namespace Stark.CommonTest
 
             // Act
             // Assert
-            Assert.AreEqual(true, customer.Validate());
-
+            Assert.True(customer.Validate());
         }
 
-        [TestMethod]
+        [Fact]
         public void CustomerValidate_GivenInvalidInformation_ShouldReturnFalse()
         {
             // Arrange
@@ -96,7 +94,7 @@ namespace Stark.CommonTest
 
             // Act
             // Assert
-            Assert.AreEqual(false, customer.Validate());
+            Assert.False(customer.Validate());
         }
     }
 }

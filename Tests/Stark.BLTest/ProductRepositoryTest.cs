@@ -1,15 +1,14 @@
-﻿using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using FluentAssertions;
+using Xunit;
 using Stark.BL.Repositories;
 using Stark.Common.Models;
 using System.Linq;
 
 namespace Stark.BLTest
 {
-    [TestClass]
     public class ProductRepositoryTest
     {
-        [TestMethod]
+        [Fact]
         public void RetrieveAll_WhenRepositoryHasInformation_ReturnsCountForAllProducts()
         {
             // Arrange
@@ -23,7 +22,7 @@ namespace Stark.BLTest
             products.Count.Should().Be(expectedProducts);
         }
 
-        [TestMethod()]
+        [Fact]
         public void Save_GivenExistingProduct_UpdatesProductReturnsTrue()
         {
             // Arrange
@@ -47,7 +46,7 @@ namespace Stark.BLTest
             savedSucceded.Should().BeTrue();
         }
         
-        [TestMethod()]
+        [Fact]
         public void Save_GivenNonExistingProduct_UpdatesProductReturnsFalse()
         {
             // Arrange

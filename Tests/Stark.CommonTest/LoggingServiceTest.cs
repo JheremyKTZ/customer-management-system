@@ -1,14 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using Stark.Common;
 using Stark.Common.Models;
 using System.Collections.Generic;
 
 namespace Stark.CommonTest
 {
-    [TestClass]
     public class LoggingServiceTest
     {
-        [TestMethod]
+        [Fact]
         public void LoggingService_GivenValidInformation_ShouldLogData()
         {
             // Arrange
