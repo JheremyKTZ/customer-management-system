@@ -26,5 +26,19 @@
     "CreatedDate": "2025-09-11T16:55:10.0084914-04:00",
     "RecordCount": 736,
     "IsGenerated": true
+  },
+  {
+    "Name": "Dataset B",
+    "Provider": "SqlServer",
+    "CreatedDate": "2025-09-12T14:31:51.1942663-04:00",
+    "RecordCount": 489,
+    "IsGenerated": true
+  },
+  {
+    "Name": "Dataset X",
+    "Provider": "Sqlite",
+    "CreatedDate": "2025-09-12T14:33:47.3100937-04:00",
+    "RecordCount": 758,
+    "IsGenerated": true
   }
 ]
