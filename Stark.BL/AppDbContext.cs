@@ -61,6 +61,39 @@ namespace Stark.BL
             modelBuilder.Entity<Order>().HasKey(o => o.OrderId);
             modelBuilder.Entity<OrderItem>().HasKey(oi => oi.OrderItemId);
 
+            // Strategic Indexes for performance
+            modelBuilder.Entity<Customer>()
+                .HasIndex(c => c.Email)
+                .HasDatabaseName("IX_Customers_Email");
+
+            modelBuilder.Entity<Customer>()
+                .HasIndex(c => c.LastName)
+                .HasDatabaseName("IX_Customers_LastName");
+
+            modelBuilder.Entity<Address>()
+                .HasIndex(a => a.CustomerId)
+                .HasDatabaseName("IX_Addresses_CustomerId");
+
+            modelBuilder.Entity<Address>()
+                .HasIndex(a => a.City)
+                .HasDatabaseName("IX_Addresses_City");
+
+            modelBuilder.Entity<Order>()
+                .HasIndex(o => o.CustomerId)
+                .HasDatabaseName("IX_Orders_CustomerId");
+
+            modelBuilder.Entity<Order>()
+                .HasIndex(o => o.OrderDate)
+                .HasDatabaseName("IX_Orders_OrderDate");
+
+            modelBuilder.Entity<OrderItem>()
+                .HasIndex(oi => oi.ProductId)
+                .HasDatabaseName("IX_OrderItems_ProductId");
+
+            modelBuilder.Entity<Product>()
+                .HasIndex(p => p.ProductName)
+                .HasDatabaseName("IX_Products_ProductName");
+
             // Configurar precisión para decimales (SQLite usa TEXT para decimales)
             modelBuilder.Entity<OrderItem>()
                 .Property(oi => oi.PurchasePrice)
@@ -69,6 +102,7 @@ namespace Stark.BL
             modelBuilder.Entity<Product>()
                 .Property(p => p.CurrentPrice)
                 .HasConversion<double>();
+
         }
     }
 }
