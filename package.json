@@ -1,0 +1,15 @@
+{
+  "name": "customer-management-system",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "ef:add": "dotnet ef migrations add %npm_config_name% --project Stark.BL --startup-project LINQ.Playground",
+    "ef:update": "dotnet ef database update --project Stark.BL --startup-project LINQ.Playground",
+    "ef:list": "dotnet ef migrations list --project Stark.BL --startup-project LINQ.Playground",
+    "ef:remove": "dotnet ef migrations remove --project Stark.BL --startup-project LINQ.Playground",
+    "ef:drop": "dotnet ef database drop --force --project Stark.BL --startup-project LINQ.Playground",
+    "ef:script": "dotnet ef migrations script --project Stark.BL --startup-project LINQ.Playground"
+  }
+}
+
+

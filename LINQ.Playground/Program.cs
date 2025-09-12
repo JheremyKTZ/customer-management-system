@@ -1,9 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
 using Stark.BL;
+using Stark.BL.Database;
 using Stark.Common.Models;
 using Stark.Generators;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.Data.SqlClient;
 
 namespace LINQ.Playground
 {
@@ -11,6 +15,8 @@ namespace LINQ.Playground
     {
         private static string? _currentDataset = null;
         private static List<DatasetInfo> _datasets = new List<DatasetInfo>();
+        private static readonly string ProjectDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../"));
+        private static string GetDataFilePath(string name) => Path.Combine(ProjectDir, name);
 
         static void Main(string[] args)
         {
@@ -18,8 +24,40 @@ namespace LINQ.Playground
             Console.WriteLine("LINQ demonstration system with Entity Framework Core");
             Console.WriteLine();
 
+            LoadConfiguration();
             LoadDatasets();
             ShowMainMenu();
+        }
+        private static IConfigurationRoot? _configuration;
+
+        // Adapter selector
+        private static IDatabaseAdapter GetAdapter()
+        {
+            var provider = GetCurrentProvider();
+            if (provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
+            {
+                var cs = _configuration?["ConnectionStrings:SqlServer"] ?? "Server=localhost\\SQLEXPRESS;Database=StarkDb;Trusted_Connection=True;TrustServerCertificate=True";
+                return new SqlServerAdapter(cs);
+            }
+
+            // default to SQLite
+            var configuredPath = _configuration?["ConnectionStrings:SqlitePath"] ?? "stark_database.db";
+            // If path is relative, place it under project directory (LINQ.Playground)
+            var sqlitePath = Path.IsPathRooted(configuredPath) ? configuredPath : GetDataFilePath(configuredPath);
+            return new SqliteAdapter(sqlitePath);
+        }
+
+        private static string GetCurrentProvider()
+        {
+            return (_configuration?["Database:Provider"] ?? "Sqlite").Trim();
+        }
+
+        private static void LoadConfiguration()
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(ProjectDir)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+            _configuration = builder.Build();
         }
 
         private static void ShowMainMenu()
@@ -28,6 +66,7 @@ namespace LINQ.Playground
             {
                 Console.Clear();
                 Console.WriteLine("=== MAIN MENU ===");
+                Console.WriteLine($"Current provider: {GetCurrentProvider()}");
                 Console.WriteLine($"Current dataset: {(_currentDataset ?? "None")}");
                 Console.WriteLine();
                 Console.WriteLine("1. Manage data");
@@ -66,7 +105,7 @@ namespace LINQ.Playground
                 Console.WriteLine("=== DATA MANAGEMENT ===");
                 Console.WriteLine();
                 Console.WriteLine("1. Generate data");
-                Console.WriteLine("2. Load data from SQLite");
+                Console.WriteLine("2. Load data from current provider");
                 Console.WriteLine("3. Delete old datasets");
                 Console.WriteLine("4. Return to main menu");
                 Console.WriteLine();
@@ -81,7 +120,7 @@ namespace LINQ.Playground
                         GenerateData();
                         break;
                     case "2":
-                        LoadDataFromSQLite();
+                        LoadDataFromCurrentProvider();
                         break;
                     case "3":
                         DeleteOldDatasets();
@@ -131,38 +170,59 @@ namespace LINQ.Playground
             try
             {
                 Console.WriteLine();
-                Console.WriteLine("🔄 Generating data...");
+                Console.WriteLine("Generating data...");
                 
                 var stubRecords = Playground.GenerateDataWithFallback(dataCount, dataCount, dataCount);
                 
-                Console.WriteLine($"✅ Data generated:");
-                Console.WriteLine($"   - Customers: {stubRecords.Customers?.Count ?? 0}");
-                Console.WriteLine($"   - Products: {stubRecords.Products?.Count ?? 0}");
-                Console.WriteLine($"   - Addresses: {stubRecords.Addresses?.Count ?? 0}");
-                Console.WriteLine($"   - Orders: {stubRecords.Orders?.Count ?? 0}");
+                Console.WriteLine($"Data generated:");
+                Console.WriteLine($" - Customers: {stubRecords.Customers?.Count ?? 0}");
+                Console.WriteLine($" - Products: {stubRecords.Products?.Count ?? 0}");
+                Console.WriteLine($" - Addresses: {stubRecords.Addresses?.Count ?? 0}");
+                Console.WriteLine($" - Orders: {stubRecords.Orders?.Count ?? 0}");
                 Console.WriteLine();
 
-                var dbPath = $"datasets/{datasetName.Replace(" ", "_")}.db";
-                Directory.CreateDirectory("datasets");
-                
-                SaveToSQLite(stubRecords, dbPath);
+                var provider = GetCurrentProvider();
+                var totalRecords = (stubRecords.Customers?.Count ?? 0) +
+                                   (stubRecords.Products?.Count ?? 0) +
+                                   (stubRecords.Addresses?.Count ?? 0) +
+                                   (stubRecords.Orders?.Count ?? 0);
+
+                // Create dataset info for the single database per provider
                 var datasetInfo = new DatasetInfo
                 {
                     Name = datasetName,
-                    FilePath = dbPath,
+                    Provider = provider,
                     CreatedDate = DateTime.Now,
-                    RecordCount = (stubRecords.Customers?.Count ?? 0) + 
-                                 (stubRecords.Products?.Count ?? 0) + 
-                                 (stubRecords.Addresses?.Count ?? 0) + 
-                                 (stubRecords.Orders?.Count ?? 0),
+                    RecordCount = totalRecords,
                     IsGenerated = true
                 };
-                
+
+                // Persist metadata tagged with current provider
                 _datasets.Add(datasetInfo);
                 SaveDatasetsInfo();
-                
-                Console.WriteLine($"Dataset '{datasetName}' saved successfully to {dbPath}");
-                Console.WriteLine($"Total records: {datasetInfo.RecordCount}");
+
+                try
+                {
+                    SaveToDatabase(stubRecords, "", provider);
+                }
+                catch (Exception ex)
+                {
+                    // Rollback metadata if persisting data failed
+                    _datasets.RemoveAll(d => d.Name == datasetName && (d.Provider ?? "").Equals(provider, StringComparison.OrdinalIgnoreCase));
+                    SaveDatasetsInfo();
+                    var inner = GetInnermostExceptionMessage(ex);
+                    throw new Exception($"Error saving dataset to storage: {ex.Message}. Inner: {inner}");
+                }
+
+                // Set the new dataset as current
+                _currentDataset = datasetName;
+                SaveCurrentDataset();
+
+                var location = provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase)
+                    ? "SQL Server database 'StarkDb'"
+                    : "SQLite file 'stark_database.db'";
+                Console.WriteLine($"Dataset '{datasetName}' saved successfully to {location}");
+                Console.WriteLine($"Total records: {totalRecords}");
             }
             catch (Exception ex)
             {
@@ -174,36 +234,48 @@ namespace LINQ.Playground
             Console.ReadLine();
         }
 
-        private static void LoadDataFromSQLite()
+        private static void LoadDataFromCurrentProvider()
         {
-            Console.WriteLine("=== LOAD DATA FROM SQLITE ===");
+            Console.WriteLine("=== LOAD DATA FROM CURRENT PROVIDER ===");
             Console.WriteLine();
             
-            if (_datasets.Count == 0)
+            var provider = GetCurrentProvider();
+            Console.WriteLine($"Current provider: {provider}");
+            Console.WriteLine();
+            
+            var providerDatasets = _datasets
+                .Where(d => string.Equals((d.Provider ?? "Sqlite").Trim(), provider, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            if (providerDatasets.Count == 0)
             {
-                Console.WriteLine("No datasets available.");
+                Console.WriteLine($"No datasets available for {provider} provider.");
+                Console.WriteLine("Generate some data first using option 1 in the data management menu.");
+                Console.WriteLine();
                 Console.WriteLine("Press Enter to continue...");
                 Console.ReadLine();
                 return;
             }
 
-            Console.WriteLine("Available datasets:");
-            for (int i = 0; i < _datasets.Count; i++)
+            Console.WriteLine($"Available datasets for {provider}:");
+            for (int i = 0; i < providerDatasets.Count; i++)
             {
-                var dataset = _datasets[i];
+                var dataset = providerDatasets[i];
                 var status = dataset.IsGenerated ? "Generated" : "Loaded";
                 Console.WriteLine($"{i + 1}. {dataset.Name} ({status}, {dataset.CreatedDate:yyyy-MM-dd}, {dataset.RecordCount} records)");
             }
             Console.WriteLine();
             Console.Write("Select the dataset to load: ");
 
-            if (int.TryParse(Console.ReadLine(), out int selection) && selection > 0 && selection <= _datasets.Count)
+            if (int.TryParse(Console.ReadLine(), out int selection) && selection > 0 && selection <= providerDatasets.Count)
             {
-                var selectedDataset = _datasets[selection - 1];
+                var selectedDataset = providerDatasets[selection - 1];
                 _currentDataset = selectedDataset.Name;
                 SaveCurrentDataset();
                 
                 Console.WriteLine($"Dataset '{selectedDataset.Name}' loaded as current dataset.");
+                Console.WriteLine($"Provider: {selectedDataset.Provider}");
+                Console.WriteLine($"Records: {selectedDataset.RecordCount}");
             }
             else
             {
@@ -374,19 +446,36 @@ namespace LINQ.Playground
         private static Playground? LoadCurrentDataset()
         {
             if (string.IsNullOrEmpty(_currentDataset))
+            {
+                Console.WriteLine("No current dataset selected.");
                 return null;
+            }
 
-            var dataset = _datasets.FirstOrDefault(d => d.Name == _currentDataset);
-            if (dataset == null || !File.Exists(dataset.FilePath))
+            var provider = GetCurrentProvider();
+            var dataset = _datasets.FirstOrDefault(d => d.Name == _currentDataset && string.Equals((d.Provider ?? "Sqlite").Trim(), provider, StringComparison.OrdinalIgnoreCase));
+            if (dataset == null)
+            {
+                Console.WriteLine($"Dataset '{_currentDataset}' not found for provider '{provider}'.");
+                Console.WriteLine($"Available datasets for {provider}: {string.Join(", ", _datasets.Where(d => string.Equals((d.Provider ?? "Sqlite").Trim(), provider, StringComparison.OrdinalIgnoreCase)).Select(d => d.Name))}");
                 return null;
+            }
+
+            // Check if database file exists for SQLite
+            if (provider.Equals("Sqlite", StringComparison.OrdinalIgnoreCase))
+            {
+                var configuredPath = _configuration?["ConnectionStrings:SqlitePath"] ?? "stark_database.db";
+                var sqlitePath = Path.IsPathRooted(configuredPath) ? configuredPath : GetDataFilePath(configuredPath);
+                if (!File.Exists(sqlitePath))
+                {
+                    Console.WriteLine($"SQLite database file not found: {sqlitePath}");
+                    return null;
+                }
+            }
 
             try
             {
-                var options = new DbContextOptionsBuilder<AppDbContext>()
-                    .UseSqlite($"Data Source={dataset.FilePath}")
-                    .Options;
-
-                using var context = new AppDbContext(options);
+                var adapter = GetAdapter();
+                using var context = adapter.CreateContext(""); // Use single DB per provider
                 
                 var customers = context.Customers.Include(c => c.AddressList).ToList();
                 var products = context.Products.ToList();
@@ -394,62 +483,255 @@ namespace LINQ.Playground
                 var orders = context.Orders.Include(o => o.OrderItems).ToList();
                 var orderItems = context.OrderItems.ToList();
 
+                Console.WriteLine($"Loaded {customers.Count} customers, {products.Count} products, {addresses.Count} addresses, {orders.Count} orders, {orderItems.Count} order items");
                 return new Playground(customers, products, addresses, orders, orderItems);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading dataset: {ex.Message}");
+                var inner = GetInnermostExceptionMessage(ex);
+                Console.WriteLine($"Error loading dataset: {ex.Message}. Inner: {inner}");
                 return null;
             }
         }
 
-        private static void SaveToSQLite(StubRecords stubRecords, string dbPath)
+        private static void SaveToDatabase(StubRecords stubRecords, string identifier, string provider)
         {
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseSqlite($"Data Source={dbPath}")
-                .Options;
+            var adapter = GetAdapter();
+            // For SQL Server ensure the database exists first
+            if (provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
+            {
+                EnsureSqlServerDatabaseExists();
+                CreateSqlServerDatabaseIfNotExists("StarkDb");
+            }
 
-            using var context = new AppDbContext(options);
-            
+            using var context = adapter.CreateContext(""); // Use single DB per provider
+
+            // Ensure the database is clean and created
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
 
-            if (stubRecords.Customers != null)
+            if (provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
             {
-                context.Customers.AddRange(stubRecords.Customers);
-            }
-            
-            if (stubRecords.Products != null)
-            {
-                context.Products.AddRange(stubRecords.Products);
-            }
-            
-            if (stubRecords.Addresses != null)
-            {
-                context.Addresses.AddRange(stubRecords.Addresses);
-            }
-            
-            if (stubRecords.Orders != null)
-            {
-                context.Orders.AddRange(stubRecords.Orders);
-            }
+                try
+                {
+                    // For SQL Server, create new objects without explicit IDs
+                    // The EnsureDeleted/EnsureCreated already cleared everything
 
-            context.SaveChanges();
+                    // ID remapping dictionaries (original -> new SQL ID)
+                    var customerIdMap = new Dictionary<int, int>();
+                    var productIdMap = new Dictionary<int, int>();
+                    var addressIdMap = new Dictionary<int, int>();
+                    var orderIdMap = new Dictionary<int, int>();
+
+                    // Insert Customers first (no dependencies)
+                    var originalCustomers = (stubRecords.Customers ?? new List<Customer>()).ToList();
+                    if (originalCustomers.Any())
+                    {
+                        var customersForSqlServer = originalCustomers.Select(c => new Customer
+                        {
+                            FirstName = c.FirstName,
+                            LastName = c.LastName,
+                            Email = c.Email,
+                            CustomerType = c.CustomerType
+                        }).ToList();
+
+                        context.Customers.AddRange(customersForSqlServer);
+                        context.SaveChanges();
+
+                        for (int i = 0; i < originalCustomers.Count; i++)
+                        {
+                            var originalId = originalCustomers[i].CustomerId;
+                            var newId = customersForSqlServer[i].CustomerId;
+                            customerIdMap[originalId] = newId;
+                        }
+                    }
+
+                    // Insert Products second (no dependencies)
+                    var originalProducts = (stubRecords.Products ?? new List<Product>()).ToList();
+                    if (originalProducts.Any())
+                    {
+                        var productsForSqlServer = originalProducts.Select(p => new Product
+                        {
+                            ProductName = p.ProductName,
+                            Description = p.Description,
+                            CurrentPrice = p.CurrentPrice
+                        }).ToList();
+
+                        context.Products.AddRange(productsForSqlServer);
+                        context.SaveChanges();
+
+                        for (int i = 0; i < originalProducts.Count; i++)
+                        {
+                            var originalId = originalProducts[i].ProductId;
+                            var newId = productsForSqlServer[i].ProductId;
+                            productIdMap[originalId] = newId;
+                        }
+                    }
+
+                    // Insert Addresses third (depends on Customers)
+                    var originalAddresses = (stubRecords.Addresses ?? new List<Address>()).ToList();
+                    if (originalAddresses.Any())
+                    {
+                        var addressesForSqlServer = originalAddresses.Select(a => new Address
+                        {
+                            CustomerId = customerIdMap.TryGetValue(a.CustomerId, out var mappedCustomerId) ? mappedCustomerId : a.CustomerId,
+                            AddressLine1 = a.AddressLine1,
+                            AddressLine2 = a.AddressLine2,
+                            City = a.City,
+                            State = a.State,
+                            Country = a.Country,
+                            PostalCode = a.PostalCode,
+                            AddressType = a.AddressType
+                        }).ToList();
+
+                        context.Addresses.AddRange(addressesForSqlServer);
+                        context.SaveChanges();
+
+                        for (int i = 0; i < originalAddresses.Count; i++)
+                        {
+                            var originalId = originalAddresses[i].AddressId;
+                            var newId = addressesForSqlServer[i].AddressId;
+                            addressIdMap[originalId] = newId;
+                        }
+                    }
+
+                    // Insert Orders fourth (depends on Customers and Addresses)
+                    var originalOrders = (stubRecords.Orders ?? new List<Order>()).ToList();
+                    if (originalOrders.Any())
+                    {
+                        var ordersForSqlServer = originalOrders.Select(o => new Order
+                        {
+                            CustomerId = customerIdMap.TryGetValue(o.CustomerId, out var mappedCustomerId) ? mappedCustomerId : o.CustomerId,
+                            ShippingAddressId = addressIdMap.TryGetValue(o.ShippingAddressId, out var mappedAddressId) ? mappedAddressId : o.ShippingAddressId,
+                            OrderDate = o.OrderDate
+                        }).ToList();
+
+                        context.Orders.AddRange(ordersForSqlServer);
+                        context.SaveChanges();
+
+                        for (int i = 0; i < originalOrders.Count; i++)
+                        {
+                            var originalId = originalOrders[i].OrderId;
+                            var newId = ordersForSqlServer[i].OrderId;
+                            orderIdMap[originalId] = newId;
+                        }
+                    }
+
+                    // Insert OrderItems last (depends on Orders and Products)
+                    if (originalOrders.Any())
+                    {
+                        var items = originalOrders.SelectMany(o => o.OrderItems ?? new List<Stark.Common.Models.OrderItem>()).ToList();
+                        if (items.Any())
+                        {
+                            var orderItemsForSqlServer = items.Select(oi => new OrderItem(0, orderIdMap.TryGetValue(oi.OrderId, out var mappedOrderId) ? mappedOrderId : oi.OrderId)
+                            {
+                                ProductId = productIdMap.TryGetValue(oi.ProductId, out var mappedProductId) ? mappedProductId : oi.ProductId,
+                                Quantity = oi.Quantity,
+                                PurchasePrice = oi.PurchasePrice
+                            }).ToList();
+
+                            context.OrderItems.AddRange(orderItemsForSqlServer);
+                            context.SaveChanges();
+                        }
+                    }
+
+                    Console.WriteLine($"Data saved successfully to SQL Server database: StarkDb");
+                }
+                catch (Exception ex)
+                {
+                    var inner = GetInnermostExceptionMessage(ex);
+                    throw new Exception($"SQL Server save failed. Inner: {inner}");
+                }
+            }
+            else
+            {
+                // SQLite - Add all data and save
+                if (stubRecords.Customers != null && stubRecords.Customers.Any())
+                {
+                    context.Customers.AddRange(stubRecords.Customers);
+                }
+                
+                if (stubRecords.Products != null && stubRecords.Products.Any())
+                {
+                    context.Products.AddRange(stubRecords.Products);
+                }
+                
+                if (stubRecords.Addresses != null && stubRecords.Addresses.Any())
+                {
+                    context.Addresses.AddRange(stubRecords.Addresses);
+                }
+                
+                if (stubRecords.Orders != null && stubRecords.Orders.Any())
+                {
+                    context.Orders.AddRange(stubRecords.Orders);
+                }
+
+                try
+                {
+                    context.SaveChanges();
+                    Console.WriteLine($"Data saved successfully to SQLite database: {_configuration?["ConnectionStrings:SqlitePath"] ?? "stark_database.db"}");
+                }
+                catch (Exception ex)
+                {
+                    var inner = GetInnermostExceptionMessage(ex);
+                    throw new Exception($"SaveChanges failed. Inner: {inner}");
+                }
+            }
+        }
+
+        private static void EnsureSqlServerDatabaseExists()
+        {
+            // No-op placeholder to keep symmetry; server existence assumed via connection string
+        }
+
+        private static void CreateSqlServerDatabaseIfNotExists(string databaseName)
+        {
+            var baseCs = _configuration?["ConnectionStrings:SqlServer"] ?? "Server=localhost\\SQLEXPRESS;Database=StarkDb;Trusted_Connection=True;Encrypt=True;TrustServerCertificate=True";
+            var builder = new SqlConnectionStringBuilder(baseCs);
+            var serverCs = baseCs;
+            builder.Remove("Initial Catalog");
+            builder.Remove("Database");
+            serverCs = builder.ConnectionString;
+
+            using var connection = new SqlConnection(serverCs);
+            connection.Open();
+            using var cmd = connection.CreateCommand();
+            cmd.CommandText = $"IF DB_ID(@db) IS NULL CREATE DATABASE [{databaseName}]";
+            cmd.Parameters.AddWithValue("@db", databaseName);
+            cmd.ExecuteNonQuery();
+        }
+
+        private static string GetInnermostExceptionMessage(Exception ex)
+        {
+            var cur = ex;
+            while (cur.InnerException != null) cur = cur.InnerException;
+            return cur.Message;
         }
 
         private static void LoadDatasets()
         {
             try
             {
-                if (File.Exists("datasets_info.json"))
+                var infoPath = GetDataFilePath("datasets_info.json");
+                if (File.Exists(infoPath))
                 {
-                    var json = File.ReadAllText("datasets_info.json");
+                    var json = File.ReadAllText(infoPath);
                     _datasets = JsonSerializer.Deserialize<List<DatasetInfo>>(json) ?? new List<DatasetInfo>();
                 }
 
-                if (File.Exists("current_dataset.txt"))
+                var currentPath = GetDataFilePath("current_dataset.txt");
+                if (File.Exists(currentPath))
                 {
-                    _currentDataset = File.ReadAllText("current_dataset.txt").Trim();
+                    _currentDataset = File.ReadAllText(currentPath).Trim();
+                }
+
+                // Ensure current dataset belongs to the active provider
+                var provider = GetCurrentProvider();
+                var belongsToProvider = _datasets.Any(d => d.Name == _currentDataset && string.Equals((d.Provider ?? "Sqlite").Trim(), provider, StringComparison.OrdinalIgnoreCase));
+                if (!belongsToProvider)
+                {
+                    _currentDataset = null;
+                    SaveCurrentDataset();
                 }
             }
             catch (Exception ex)
@@ -463,8 +745,11 @@ namespace LINQ.Playground
         {
             try
             {
-                var json = JsonSerializer.Serialize(_datasets, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText("datasets_info.json", json);
+                var json = JsonSerializer.Serialize(
+                    _datasets,
+                    new JsonSerializerOptions { WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull }
+                );
+                File.WriteAllText(GetDataFilePath("datasets_info.json"), json);
             }
             catch (Exception ex)
             {
@@ -476,7 +761,7 @@ namespace LINQ.Playground
         {
             try
             {
-                File.WriteAllText("current_dataset.txt", _currentDataset ?? "");
+                File.WriteAllText(GetDataFilePath("current_dataset.txt"), _currentDataset ?? "");
             }
             catch (Exception ex)
             {
@@ -488,7 +773,9 @@ namespace LINQ.Playground
     public class DatasetInfo
     {
         public string Name { get; set; } = "";
-        public string FilePath { get; set; } = "";
+        public string? Provider { get; set; } = null; // Sqlite or SqlServer
+        public string? FilePath { get; set; } = null; // Only for Sqlite
+        public string? DatabaseName { get; set; } = null; // Only for SqlServer
         public DateTime CreatedDate { get; set; }
         public int RecordCount { get; set; }
         public bool IsGenerated { get; set; }
@@ -498,8 +785,26 @@ namespace LINQ.Playground
     {
         public AppDbContext CreateDbContext(string[] args)
         {
+            // Read configuration so EF Tools target the selected provider
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../")))
+                .AddJsonFile("appsettings.json", optional: true)
+                .Build();
+
+            var provider = configuration["Database:Provider"] ?? "Sqlite";
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            optionsBuilder.UseSqlite("Data Source=stark_database.db");
+
+            if (provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
+            {
+                var cs = configuration["ConnectionStrings:SqlServer"] ?? "Server=localhost\\SQLEXPRESS;Database=StarkDb;Trusted_Connection=True;TrustServerCertificate=True";
+                optionsBuilder.UseSqlServer(cs);
+            }
+            else
+            {
+                var path = configuration["ConnectionStrings:SqlitePath"] ?? "stark_database.db";
+                optionsBuilder.UseSqlite($"Data Source={path}");
+            }
+
             return new AppDbContext(optionsBuilder.Options);
         }
     }

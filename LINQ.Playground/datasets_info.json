@@ -1,9 +1,30 @@
 [
   {
     "Name": "Dataset A",
-    "FilePath": "datasets/Dataset_A.db",
-    "CreatedDate": "2025-09-10T12:32:07.2475376-04:00",
-    "RecordCount": 509,
+    "Provider": "Sqlite",
+    "CreatedDate": "2025-09-11T15:36:27.6077386-04:00",
+    "RecordCount": 496,
+    "IsGenerated": true
+  },
+  {
+    "Name": "Dataset B",
+    "Provider": "Sqlite",
+    "CreatedDate": "2025-09-11T15:39:32.1746817-04:00",
+    "RecordCount": 497,
+    "IsGenerated": true
+  },
+  {
+    "Name": "Dataset A",
+    "Provider": "SqlServer",
+    "CreatedDate": "2025-09-11T16:26:13.5907669-04:00",
+    "RecordCount": 506,
+    "IsGenerated": true
+  },
+  {
+    "Name": "Dataset C",
+    "Provider": "Sqlite",
+    "CreatedDate": "2025-09-11T16:55:10.0084914-04:00",
+    "RecordCount": 736,
     "IsGenerated": true
   }
 ]
