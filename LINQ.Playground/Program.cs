@@ -475,16 +475,17 @@ namespace LINQ.Playground
             try
             {
                 var adapter = GetAdapter();
-                using var context = adapter.CreateContext(""); // Use single DB per provider
+                var context = adapter.CreateContext(""); // Use single DB per provider
                 
-                var customers = context.Customers.Include(c => c.AddressList).ToList();
-                var products = context.Products.ToList();
-                var addresses = context.Addresses.ToList();
-                var orders = context.Orders.Include(o => o.OrderItems).ToList();
-                var orderItems = context.OrderItems.ToList();
+                // Test the connection by counting records
+                var customerCount = context.Customers.Count();
+                var productCount = context.Products.Count();
+                var addressCount = context.Addresses.Count();
+                var orderCount = context.Orders.Count();
+                var orderItemCount = context.OrderItems.Count();
 
-                Console.WriteLine($"Loaded {customers.Count} customers, {products.Count} products, {addresses.Count} addresses, {orders.Count} orders, {orderItems.Count} order items");
-                return new Playground(customers, products, addresses, orders, orderItems);
+                Console.WriteLine($"Connected to database with {customerCount} customers, {productCount} products, {addressCount} addresses, {orderCount} orders, {orderItemCount} order items");
+                return new Playground(context);
             }
             catch (Exception ex)
             {

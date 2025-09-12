@@ -1,30 +1,18 @@
 using Microsoft.EntityFrameworkCore;
 using Stark.Common.Models;
 using Stark.Generators;
+using Stark.BL;
 
 namespace LINQ.Playground
 {
-    internal class Playground
+    public class Playground
     {
-        public Playground(
-            List<Customer> customers,
-            List<Product> products,
-            List<Address> addresses,
-            List<Order> orders,
-            List<OrderItem> orderItems)
-        {
-            Customers = customers;
-            Products = products;
-            Addresses = addresses;
-            Orders = orders;
-            OrderItems = orderItems;
-        }
+        private readonly AppDbContext _context;
 
-        public List<Customer> Customers { get; }
-        public List<Product> Products { get; }
-        public List<Address> Addresses { get; }
-        public List<Order> Orders { get; }
-        public List<OrderItem> OrderItems { get; }
+        public Playground(AppDbContext context)
+        {
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
 
         public static StubRecords GenerateDataWithFallback(int customerCount = 100, int productCount = 50, int orderCount = 200)
         {
@@ -151,12 +139,15 @@ namespace LINQ.Playground
             Console.WriteLine("=== TOP 50 MOST ORDERED PRODUCTS ===");
             Console.WriteLine();
 
-            var topProducts = OrderItems
+            var topProducts = _context.OrderItems
                 .GroupBy(oi => oi.ProductId)
                 .Select(g => new
                 {
                     ProductId = g.Key,
-                    ProductName = Products.FirstOrDefault(p => p.ProductId == g.Key)?.ProductName ?? "Unknown Product",
+                    ProductName = _context.Products
+                        .Where(p => p.ProductId == g.Key)
+                        .Select(p => p.ProductName)
+                        .FirstOrDefault() ?? "Unknown Product",
                     TotalQuantity = g.Sum(oi => oi.Quantity),
                     TotalOrders = g.Count(),
                     TotalRevenue = g.Sum(oi => oi.Quantity * (oi.PurchasePrice ?? 0))
@@ -182,7 +173,8 @@ namespace LINQ.Playground
             Console.WriteLine("=== CUSTOMERS WITH MORE THAN 2 ADDRESSES ===");
             Console.WriteLine();
 
-            var customersWithManyAddresses = Customers
+            var customersWithManyAddresses = _context.Customers
+                .Include(c => c.AddressList)
                 .Where(c => c.AddressList.Count > 2)
                 .Select(c => new
                 {
@@ -213,24 +205,30 @@ namespace LINQ.Playground
             Console.WriteLine();
 
             var currentYear = DateTime.Now.Year;
-            var top10ProductsThisYear = OrderItems
-                .Where(oi => oi.Order?.OrderDate?.Year == currentYear)
+            var top10ProductsThisYear = _context.OrderItems
+                .Include(oi => oi.Order)
+                .Where(oi => oi.Order.OrderDate.HasValue && oi.Order.OrderDate.Value.Year == currentYear)
                 .GroupBy(oi => oi.ProductId)
                 .Select(g => new
                 {
                     ProductId = g.Key,
-                    ProductName = Products.FirstOrDefault(p => p.ProductId == g.Key)?.ProductName ?? "Unknown Product",
+                    ProductName = _context.Products
+                        .Where(p => p.ProductId == g.Key)
+                        .Select(p => p.ProductName)
+                        .FirstOrDefault() ?? "Unknown Product",
                     TotalQuantity = g.Sum(oi => oi.Quantity)
                 })
                 .OrderByDescending(p => p.TotalQuantity)
                 .Take(10)
                 .ToList();
 
-            var citiesOfTopProducts = top10ProductsThisYear
-                .SelectMany(p => OrderItems
-                    .Where(oi => oi.ProductId == p.ProductId && oi.Order?.OrderDate?.Year == currentYear)
-                    .Where(oi => oi.Order?.ShippingAddress != null)
-                    .Select(oi => oi.Order.ShippingAddress.City))
+            var productIds = top10ProductsThisYear.Select(p => p.ProductId).ToList();
+            var citiesOfTopProducts = _context.OrderItems
+                .Include(oi => oi.Order)
+                .ThenInclude(o => o.ShippingAddress)
+                .Where(oi => productIds.Contains(oi.ProductId) && oi.Order.OrderDate.HasValue && oi.Order.OrderDate.Value.Year == currentYear)
+                .Where(oi => oi.Order.ShippingAddress != null)
+                .Select(oi => oi.Order.ShippingAddress.City)
                 .Where(city => !string.IsNullOrEmpty(city))
                 .Distinct()
                 .ToList();
@@ -262,13 +260,17 @@ namespace LINQ.Playground
             Console.WriteLine();
 
             var currentYear = DateTime.Now.Year;
-            var topCustomersThisYear = Orders
-                .Where(o => o.OrderDate?.Year == currentYear)
+            var topCustomersThisYear = _context.Orders
+                .Include(o => o.OrderItems)
+                .Where(o => o.OrderDate.HasValue && o.OrderDate.Value.Year == currentYear)
                 .GroupBy(o => o.CustomerId)
                 .Select(g => new
                 {
                     CustomerId = g.Key,
-                    CustomerName = Customers.FirstOrDefault(c => c.CustomerId == g.Key)?.FullName ?? "Unknown Customer",
+                    CustomerName = _context.Customers
+                        .Where(c => c.CustomerId == g.Key)
+                        .Select(c => c.FullName)
+                        .FirstOrDefault() ?? "Unknown Customer",
                     OrderCount = g.Count(),
                     TotalSpent = g.SelectMany(o => o.OrderItems).Sum(oi => oi.Quantity * (oi.PurchasePrice ?? 0))
                 })
@@ -294,7 +296,7 @@ namespace LINQ.Playground
             Console.WriteLine("=== TOP 10 CITIES WHERE CUSTOMERS ARE REGISTERED ===");
             Console.WriteLine();
 
-            var topCities = Addresses
+            var topCities = _context.Addresses
                 .Where(a => !string.IsNullOrEmpty(a.City))
                 .GroupBy(a => a.City)
                 .Select(g => new
@@ -340,7 +342,7 @@ namespace LINQ.Playground
         {
             Console.WriteLine("Get customers with names that start with B");
 
-            var customersThatStartWithB = Customers
+            var customersThatStartWithB = _context.Customers
                 .Where(c => c.FullName.StartsWith("B"))
                 .Select(c => new
                 {
@@ -358,8 +360,18 @@ namespace LINQ.Playground
 
             Console.WriteLine("\nGet the top 10 addresses that contain a city with more than 1 word");
 
-            var addressesLongCountry = Addresses
-                .Where(a => !string.IsNullOrEmpty(a.City) && a.City.Split(' ').Length > 1)
+            var addressesLongCountry = _context.Addresses
+                .Where(a => !string.IsNullOrEmpty(a.City))
+                .Select(a => new
+                {
+                    a.AddressId,
+                    a.Country,
+                    a.City,
+                    a.PostalCode,
+                    a.AddressLine1,
+                })
+                .AsEnumerable()
+                .Where(a => a.City.Split(' ').Length > 1)
                 .Select(a => new
                 {
                     a.AddressId,
@@ -381,7 +393,7 @@ namespace LINQ.Playground
             }
 
             Console.WriteLine("\nGet the next 10 orders that have the most recent order date");
-            var recentlyOrderedOrders = Orders
+            var recentlyOrderedOrders = _context.Orders
                 .Where(o => o.OrderDate.HasValue)
                 .OrderByDescending(o => o.OrderDate)
                 .Skip(10)
@@ -395,7 +407,7 @@ namespace LINQ.Playground
             }
 
             Console.WriteLine("\nGet the highest and lowest order item, by quantity and price");
-            var orderedItems = OrderItems
+            var orderedItems = _context.OrderItems
                 .OrderByDescending(o => o.Quantity)
                 .ThenBy(o => o.PurchasePrice);
             var topOrderItem = orderedItems.First();
@@ -405,8 +417,9 @@ namespace LINQ.Playground
             Console.WriteLine($"Item with lowest quantity: {bottomOrderItem.Quantity} units at ${bottomOrderItem.PurchasePrice}");
 
             Console.WriteLine("\nGet customer information from orders");
-            var ordersWithCustomers = Orders
-                .Join(Customers,
+            var ordersWithCustomers = _context.Orders
+                .Include(o => o.OrderItems)
+                .Join(_context.Customers,
                     o => o.CustomerId,
                     c => c.CustomerId,
                     (o, c) => new
